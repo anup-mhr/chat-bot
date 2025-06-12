@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dynamic Chatbot Embedding</title>
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif;
+        line-height: 1.6;
+        margin: 0;
+        padding: 20px;
+        background-color: #f8fafc;
+      }
+      .content {
+        max-width: 800px;
+        margin: 40px auto;
+        background: white;
+        padding: 40px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+      h1 {
+        color: #1e293b;
+        margin-bottom: 20px;
+      }
+      p {
+        color: #64748b;
+        margin-bottom: 16px;
+      }
+      .button {
+        display: inline-block;
+        background-color: #3b82f6;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 4px;
+        text-decoration: none;
+        margin: 10px 10px 10px 0;
+        cursor: pointer;
+        border: none;
+        font-size: 14px;
+      }
+      .button:hover {
+        background-color: #2563eb;
+      }
+      .highlight {
+        background-color: #dbeafe;
+        padding: 20px;
+        border-radius: 8px;
+        margin: 20px 0;
+        border-left: 4px solid #3b82f6;
+      }
+      .code {
+        background-color: #1e293b;
+        color: #e2e8f0;
+        padding: 16px;
+        border-radius: 8px;
+        font-family: monospace;
+        overflow-x: auto;
+        margin: 20px 0;
+        font-size: 14px;
+      }
+      .demo-section {
+        background-color: #f8fafc;
+        padding: 20px;
+        border-radius: 8px;
+        margin: 20px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="content">
+      <h1>Dynamic Chatbot Embedding Example</h1>
+      <p>
+        This page demonstrates the dynamic chatbot embedding that automatically
+        resizes based on its state. The chatbot starts as a small circular
+        button and expands when opened.
+      </p>
+
+      <div class="highlight">
+        <h3>How it works:</h3>
+        <ul>
+          <li>
+            <strong>Closed State:</strong> 70x70px circular button in
+            bottom-right corner
+          </li>
+          <li>
+            <strong>Open State:</strong> 400x600px chat window with rounded
+            corners
+          </li>
+          <li>
+            <strong>Dynamic Resizing:</strong> Smooth transitions between states
+          </li>
+          <li>
+            <strong>No Interference:</strong> Doesn't block website content
+          </li>
+        </ul>
+      </div>
+
+      <div class="demo-section">
+        <h3>Test Website Interaction</h3>
+        <p>
+          Click these buttons to verify the website remains fully interactive:
+        </p>
+        <button
+          class="button"
+          onclick="alert('Button 1 clicked! Website is fully interactive.')"
+        >
+          Test Button 1
+        </button>
+        <button
+          class="button"
+          onclick="alert('Button 2 clicked! No interference from chatbot.')"
+        >
+          Test Button 2
+        </button>
+        <button
+          class="button"
+          onclick="alert('Button 3 clicked! Perfect embedding!')"
+        >
+          Test Button 3
+        </button>
+      </div>
+
+      <div class="code">
+        &lt;!-- Simple one-line embedding --&gt; &lt;script
+        src="http://localhost:3000/embed.js" data-auto-init="true"
+        data-url="http://localhost:3000"&gt; &lt;/script&gt;
+      </div>
+
+      <p>
+        The chatbot will appear as a floating button in the bottom-right corner.
+        When you click it, it will smoothly expand to show the full chat
+        interface. When closed, it shrinks back to the button size.
+      </p>
+
+      <p>
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod
+        tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim
+        veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
+        commodo consequat.
+      </p>
+
+      <p>
+        Duis aute irure dolor in reprehenderit in voluptate velit esse cillum
+        dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
+        proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+      </p>
+    </div>
+
+    <!-- Dynamic Chatbot Embedding -->
+    <script
+      src="http://localhost:3000/embed.js"
+      data-auto-init="true"
+      data-url="http://localhost:3000"
+    ></script>
+  </body>
+</html>
