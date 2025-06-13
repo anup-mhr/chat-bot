@@ -6,7 +6,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "build:embed": "node scripts/build-embed.js",
+    "watch:embed": "nodemon scripts/build-embed.js",
+    "start:dev": " npm start && npm run watch:embed",
+    "build:prod": " npm run build && npm run build:embed"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
@@ -69,8 +73,9 @@
     "sugarss": "latest",
     "tailwind-merge": "^2.5.5",
     "tailwindcss-animate": "^1.0.7",
-    "terser": "latest",
+    "terser": "^5.42.0",
     "tsx": "latest",
+    "uglify-js": "^3.19.3",
     "vaul": "^0.9.6",
     "vite": "latest",
     "yaml": "latest",
@@ -80,7 +85,8 @@
     "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "postcss": "^8.5",
+    "cssnano": "^7.0.7",
+    "postcss": "^8.5.5",
     "tailwindcss": "^3.4.17",
     "typescript": "^5"
   }
