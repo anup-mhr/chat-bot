@@ -8,6 +8,16 @@ exports.postToServer = async (url, body, headers) => {
   });
 };
 
+exports.newPostToServer = async (url, body, headers) => {
+  const res = await fetch(url, {
+    method: "POST",
+    headers: headers,
+    body: JSON.stringify(body),
+  });
+
+  return await res.json();
+};
+
 exports.getFromServer = async (url, headers) => {
   return await fetch(url, {
     method: "GET",

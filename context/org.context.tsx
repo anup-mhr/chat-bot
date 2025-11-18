@@ -12,6 +12,7 @@ import { getUniqueId } from "@/utils/getUniqueId";
 interface VisitorData {
   visitorId: string;
   details: OrganizationDetails | null;
+  userDetails: UserLead | null;
 }
 
 interface OrganizationDetails {
@@ -28,6 +29,34 @@ interface OrganizationDetails {
   region_id: string;
 }
 
+interface UserLead {
+  _id: string;
+  branch: string;
+  city: string | null;
+  confirmation_sent_date: string | null;
+  created_date: string;
+  dob: string | null;
+  email: string;
+  event_id: string | null;
+  first_name: string;
+  gender: string | null;
+  interested_in: string;
+  last_name: string;
+  note: string;
+  organization_id: string;
+  phone: string;
+  referred_by: string | null;
+  sender: string;
+  source_group: string;
+  state: string | null;
+  type: string;
+  updated_date: string;
+  use_automation: boolean;
+  venue_id: string | null;
+  zip: string | null;
+  __v: number;
+}
+
 interface VisitorContextType {
   visitorData: VisitorData;
   isLoading: boolean;
@@ -40,6 +69,7 @@ export function VisitorProvider({ children }: { children: ReactNode }) {
   const [visitorData, setVisitorData] = useState<VisitorData>({
     visitorId: "",
     details: null,
+    userDetails: null,
   });
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -59,11 +89,20 @@ export function VisitorProvider({ children }: { children: ReactNode }) {
         }
 
         const details = await response.json();
-
-        setVisitorData({
-          visitorId,
-          details,
-        });
+        if (details) {
+          const userResponse = await fetch(
+            `/userdetail?llmfields=${encodeURIComponent(
+              JSON.stringify(details)
+            )}&uniqueid=${visitorId}`
+          );
+          const responseDetails = await userResponse.json();
+          const userDetails = responseDetails.data;
+          setVisitorData({
+            visitorId,
+            details,
+            userDetails,
+          });
+        }
 
         setError(null);
       } catch (err) {
@@ -75,6 +114,7 @@ export function VisitorProvider({ children }: { children: ReactNode }) {
         setVisitorData({
           visitorId,
           details: null,
+          userDetails: null,
         });
       } finally {
         setIsLoading(false);

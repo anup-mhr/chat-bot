@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 export async function GET() {
-  const baseUrl = process.env.BASE_URL ?? "https://0b12f96a6e09.ngrok-free.app";
+  const baseUrl = process.env.BASE_URL ?? "http://localhost:3000";
 
   const script = `
 (async () => {
@@ -82,6 +82,23 @@ export async function GET() {
       .close-button:hover {
         background: rgba(255, 255, 255, 0.1);
       }
+
+      .call-button {
+        background: none;
+        border: none;
+        color: white;
+        cursor: pointer;
+        padding: 4px;
+        border-radius: 4px;
+        transition: background-color 0.2s;
+        position: absolute;
+        right: 40px;
+        top: 20px;
+        z-index: 9999;
+      }
+      .call-button:hover {
+        background: rgba(255, 255, 255, 0.1);
+      }
     \`;
     document.head.appendChild(style);
   }
@@ -136,7 +153,25 @@ export async function GET() {
       document.getElementById("chatbot-iframe")?.classList.remove("open");
     });
 
+
+    const callBtn = document.createElement("button");
+    callBtn.classList.add("call-button");
+    callBtn.ariaLabel = "Call Chatbot";
+
+    callBtn.innerHTML = \`\<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-phone-call-icon"> <path d="M13 2a9 9 0 0 1 9 9"/> <path d="M13 6a5 5 0 0 1 5 5"/> <path d="M13.832 16.568a1 1 0 0 0 1.213-.303l.355-.465A2 2 0 0 1 17 15h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-.8 1.6l-.468.351a1 1 0 0 0-.292 1.233 14 14 0 0 0 6.392 6.384"/> </svg>\`\;
+
+    callBtn.addEventListener("click", () => {
+      const iframe = document.querySelector("#chatbot-iframe iframe");
+      if (iframe && iframe.contentWindow) {
+      iframe.contentWindow.postMessage(
+      { type: 'start-call' },
+      "${baseUrl}"
+      );
+      }
+    });
+
     iframeContainer.appendChild(closeBtn);
+    iframeContainer.appendChild(callBtn);
 
     const chatbotIframe = document.createElement("iframe");
     chatbotIframe.src = "${baseUrl}";

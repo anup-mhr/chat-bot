@@ -20,7 +20,7 @@ async function generateAIResponse(
     redisKey = `llmDetails:${redisDetails.branchSelected}`;
   } else {
     redisKey = `llmDetails:${
-      redisDetails.branch_id
+      redisDetails?.branch_id
         ? redisDetails.branch_id === "all"
           ? redisDetails.org_id
           : redisDetails.branch_id

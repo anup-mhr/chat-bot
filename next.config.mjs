@@ -16,7 +16,8 @@ const nextConfig = {
         headers: [
           {
             key: "Content-Security-Policy",
-            value: "frame-ancestors 'self' http://localhost:5500;", // prevent your site from being embedded by others
+            value:
+              "frame-ancestors 'self' http://localhost:5500 http://localhost:3000 http://localhost:51597/ file://*;", // prevent your site from being embedded by others
           },
           {
             key: "X-Frame-Options",
@@ -24,7 +25,8 @@ const nextConfig = {
           },
           {
             key: "X-Content-Type-Options",
-            value: "nosniff", // prevent browser from sniffing content type
+            value:
+              "ALLOW-FROM http://localhost:5500 http://localhost:3000 http://localhost:51597/ file://*;", // prevent browser from sniffing content type
           },
           {
             key: "Referrer-Policy",
@@ -53,7 +55,8 @@ const nextConfig = {
           },
           {
             key: "Permissions-Policy",
-            value: "camera=(), microphone=(), geolocation=(), fullscreen=()",
+            value:
+              'microphone=(self "http://localhost:5500"), camera=(), autoplay=()',
           },
         ],
       },

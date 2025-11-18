@@ -150,6 +150,7 @@
     chatbotIframe.style.height = "100%";
     chatbotIframe.style.width = "100%";
     chatbotIframe.style.zIndex = "999";
+    chatbotIframe.allow = "microphone";
 
     iframeContainer.appendChild(chatbotIframe);
 

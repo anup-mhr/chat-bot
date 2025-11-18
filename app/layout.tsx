@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { VisitorProvider } from "@/context/org.context";
 
 export const metadata: Metadata = {
   title: "Chat Bot",
@@ -13,7 +14,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <VisitorProvider>{children}</VisitorProvider>
+      </body>
     </html>
   );
 }
