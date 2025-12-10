@@ -2,26 +2,71 @@ const express = require("express");
 const http = require("http");
 const socketIo = require("socket.io");
 const cors = require("cors");
+const path = require("path");
 
 const app = express();
 const server = http.createServer(app);
 
-// Import UI controller routes
+// Import routes
+const embedScript = require("./routes/embed");
 const organizationUi = require("./routes/uiController");
 const chatHistoryRouter = require("./routes/chatHistory");
 const call = require("./routes/callController");
 const userDetail = require("./routes/userDetail");
 const { generateAIResponse, generateVoiceResponse } = require("./rasa");
+const fs = require("fs");
+const expressStaticGzip = require("express-static-gzip");
 
-// Configure CORS for Socket.IO with environment-aware origins
+// Serve static chatbot files
+const publicDirectoryPath = path.join(__dirname, "./dist");
+const distExists = fs.existsSync(publicDirectoryPath);
+
+if (distExists) {
+  // Serve pre-compressed files (Brotli and Gzip)
+  app.use(
+    expressStaticGzip(publicDirectoryPath, {
+      enableBrotli: true,
+      orderPreference: ["br", "gz"], // Prefer Brotli, fallback to Gzip
+      index: false, // Don't auto-serve index.html
+      serveStatic: {
+        maxAge: "0",
+        etag: true,
+        lastModified: true,
+        immutable: true,
+        setHeaders: (res, filePath) => {
+          res.setHeader("X-Content-Type-Options", "nosniff");
+
+          // Aggressive caching for hashed assets
+          if (
+            /\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot|webp|avif)$/i.test(
+              filePath
+            )
+          ) {
+            res.setHeader("Cache-Control", "public, max-age=0, immutable");
+          }
+          // No cache for HTML
+          else if (filePath.endsWith(".html")) {
+            res.setHeader(
+              "Cache-Control",
+              "no-cache, no-store, must-revalidate"
+            );
+            res.setHeader("Pragma", "no-cache");
+          }
+        },
+      },
+    })
+  );
+}
+
+// Configure CORS
 const allowedOrigins =
   process.env.NODE_ENV === "production"
     ? [process.env.FRONTEND_URL || "https://your-domain.vercel.app"]
     : [
         "http://localhost:3000",
+        "http://localhost:4173",
         "http://172.18.32.1:3000",
-        "file:///D:/Projects/Bots/chat-bot/embed-example.html",
-        "http://localhost:5500",
+        "http://localhost:5173",
       ];
 
 const io = socketIo(server, {
@@ -40,24 +85,35 @@ app.use(
 );
 app.use(express.json());
 
-// Health check endpoint for Vercel
+// Health check endpoint
 app.get("/health", (req, res) => {
   res.json({ status: "OK", timestamp: new Date().toISOString() });
 });
 
-// Use UI controller routes
+// API routes FIRST (before static files)
+app.use("/embed", embedScript);
 app.use("/rest/v1/ui", organizationUi);
 app.use("/rest/v1/chat", chatHistoryRouter);
 app.use("/rest/v1/call", call);
 app.use("/rest/v1/user", userDetail);
 
-// Store active sessions
+app.get("/bot", (req, res) => {
+  res.sendFile(path.join(path.join(__dirname), "index.html"));
+});
+
+app.use(express.static(publicDirectoryPath));
+
+// Catch-all route for chatbot host
+app.get("*", (req, res) => {
+  res.sendFile(path.join(publicDirectoryPath, "index.html"));
+});
+
+// Socket.IO logic
 const activeSessions = new Map();
 
 io.on("connection", (socket) => {
   console.log(`User connected: ${socket.id}`);
 
-  // Store session
   activeSessions.set(socket.id, {
     connectedAt: new Date(),
     messageCount: 0,
@@ -65,19 +121,20 @@ io.on("connection", (socket) => {
 
   socket.on("user-message", async (data) => {
     const { message, details, sender, source, userDetails, attachment } = data;
-    console.log(`Message from ${sender}: ${message ? message : attachment}`);
+    console.log(
+      `Message from ${sender}: ${
+        message ? message : JSON.stringify(attachment)
+      }`
+    );
 
-    // Update session
     const session = activeSessions.get(socket.id);
     if (session) {
       session.messageCount++;
     }
 
-    // Emit typing indicator
     socket.emit("bot-typing");
 
     try {
-      // Generate AI response
       const aiResponse = await generateAIResponse(
         message,
         details,
@@ -87,7 +144,6 @@ io.on("connection", (socket) => {
         attachment
       );
 
-      // Stop typing and send response
       socket.emit("bot-stop-typing");
       socket.emit("bot-message", aiResponse);
     } catch (error) {
@@ -101,32 +157,28 @@ io.on("connection", (socket) => {
   });
 
   socket.on("voice-message", async (data) => {
-    const { audio, details, sender, source, filename, from_chatbot } = data;
+    const { audio, details, sender, source, filename, type } = data;
     console.log(`Voice message from ${sender} of ${filename}`);
 
-    // Update session
     const session = activeSessions.get(socket.id);
     if (session) {
       session.messageCount++;
     }
 
-    // Emit typing indicator
     socket.emit("bot-typing");
 
     try {
-      // Generate voice response
       const voiceResponse = await generateVoiceResponse(
         audio,
         details,
         sender,
         source,
         filename,
-        from_chatbot
+        type
       );
 
       console.log(voiceResponse, "voice response after posting in dashboard");
 
-      // Stop typing and send response
       socket.emit("bot-stop-typing");
       socket.emit("voice-response", voiceResponse);
     } catch (error) {

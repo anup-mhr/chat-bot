@@ -1,5 +1,6 @@
 const { client } = require("./utils/redis");
 const ServerServices = require("./server.services");
+const FormData = require("form-data");
 require("dotenv").config();
 const fetch = require("node-fetch");
 require("dotenv").config();
@@ -95,7 +96,7 @@ async function generateAIResponse(
   }`;
 
   let body = {
-    query: attachment ? attachment.payload : message,
+    query: attachment ? attachment.payload.path : message,
     organization_name: details.organization_name || "",
     chatbot_name: details.chatbot_name || "",
     stream: false,
@@ -192,57 +193,56 @@ async function generateAIResponse(
 }
 
 async function generateVoiceResponse(
-  message,
+  audio,
   details,
   sender,
   source,
   filename,
-  from_chatbot
+  filetype
 ) {
-  const base64Data = message.replace(/^data:audio\/\w+;base64,/, "");
-  const buffer = Buffer.from(base64Data, "base64");
+  try {
+    let url = `${process.env.CONTROL_PANEL_URL}/api/media/singleLivechat`;
+    if (filetype.startsWith("image/")) {
+      url = `${process.env.CONTROL_PANEL_URL}/api/media/singleLivechat`;
+    } else if (filetype.startsWith("audio")) {
+      url = `${process.env.CONTROL_PANEL_URL}/api/files/audioUploadLivechat`;
+    } else if (filetype.startsWith("video")) {
+      url = `${process.env.CONTROL_PANEL_URL}/api/files/videoUploadLivechat`;
+    } else {
+      url = `${process.env.CONTROL_PANEL_URL}/api/files/pdfUploadLivechat`;
+    }
 
-  console.log(
-    "message",
-    buffer,
-    "details",
-    details,
-    "sender",
-    sender,
-    "source",
-    source,
-    from_chatbot
-  );
-  // http://54.251.232.54:3003/rest/v1/
-  let url = `${baseUrl}/${process.env.BASEPATH}/uploads/buffer?visitorId=${sender}&fileName=${filename}`;
+    const panelKey = process.env.CONTROL_PANEL_KEY;
 
-  url = from_chatbot
-    ? `${url}&access_token=${process.env.ADMIN_TOKEN}`
-    : `${url}&access_token=${authorization}`;
+    if (!audio) {
+      throw new Error("audio is required");
+    }
 
-  if (!filename) {
-    throw new Error("Filename is required");
+    let type = filetype.startsWith("image/")
+      ? "LIVE_CHAT_IMAGE"
+      : filetype.startsWith("audio")
+      ? "LIVE_CHAT_AUDIO"
+      : filetype.startsWith("video")
+      ? "LIVE_CHAT_VIDEO"
+      : "LIVE_CHAT_FILE";
+
+    const formData = new FormData();
+    formData.append("file", audio, filename);
+    formData.append("type", type);
+
+    const response = await fetch(url, {
+      method: "POST",
+      body: formData,
+      headers: {
+        apikey: panelKey,
+      },
+    });
+
+    const data = await response.json();
+    return { ...data.data };
+  } catch (error) {
+    console.error("Error in uploading file: ", error);
   }
-
-  console.log("url", url, "consloing before sending audio>>>");
-
-  const response = await fetch(url, {
-    method: "POST",
-    body: buffer,
-    headers: {
-      "Content-Type": "application/octet-stream",
-      "Content-Length": buffer.length,
-    },
-  });
-
-  const data = await response.json();
-
-  console.log(data, "response data after post>>>");
-
-  // https://localhost:3001
-  return data.path
-    ? `${process.env.FILE_BASE_URL}rest/v1/chat/file?path=${data.path}`
-    : "";
 }
 
 module.exports = { generateAIResponse, generateVoiceResponse };

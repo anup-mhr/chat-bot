@@ -38,7 +38,7 @@ exports.userLeadsController = catchAsync(async function (req, res, next) {
   if (response.status === 200 || response.success) {
     messageJSON.title = "Leads submitted successfully";
 
-    return successResponse(res, data, type, "success", 200);
+    return successResponse(res, data.data, type, "success", 200);
   } else {
     messageJSON.title = "Problme in submitting Leads";
     return next(new AppError("Something went wrong", 400));
@@ -62,8 +62,11 @@ exports.getUserLeads = catchAsync(async function (req, res, next) {
   console.log(data.data, "response dat");
 
   if (!data || data.success === false) {
-    console.error("Error fetching leads:", data?.originalError);
-    return next(new AppError(data?.message || "Something went wrong", 400));
+    return res.json({
+      success: false,
+      message: data?.message || "Something went wrong",
+      status: 400,
+    });
   }
 
   return successResponse(
