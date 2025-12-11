@@ -8,6 +8,7 @@ import { FormDialog } from "./FormDialog";
 import { useVisitor } from "../context/org.context";
 import { connectSocket, disconnectSocket, getSocket } from "../socket/socket";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import Messages from "./Messages";
 
 interface Message {
   id: string;
@@ -50,7 +51,7 @@ function App2() {
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(
     null
   );
-  const [audioChunks, setAudioChunks] = useState<Blob[]>([]);
+  // const [audioChunks, setAudioChunks] = useState<Blob[]>([]);
   const [showCallOverlay, setShowCallOverlay] = useState(false);
   const [showFormDialog, setShowFormDialog] = useState(false);
   const [pendingMessage, setPendingMessage] = useState<{
@@ -231,7 +232,7 @@ function App2() {
         const audioBlob = new Blob(chunks, { type: "audio/wav" });
         console.log(audioBlob, "Recorded Audio Blob");
         sendVoiceMessage(audioBlob);
-        setAudioChunks([]);
+        // setAudioChunks([]);
 
         // Stop all tracks to release microphone
         stream.getTracks().forEach((track) => track.stop());
@@ -240,7 +241,7 @@ function App2() {
       recorder.start();
       setMediaRecorder(recorder);
       setIsRecording(true);
-      setAudioChunks(chunks);
+      // setAudioChunks(chunks);
     } catch (error: any) {
       console.error(`Error accessing microphone: ${error}`);
       if (
@@ -386,100 +387,20 @@ function App2() {
             </div>
             <div>
               <h3>{visitorData.details?.header_Name}</h3>
-              <span className={`status ${isConnected ? "online" : "offline"}`}>
+              {/* <span className={`status ${isConnected ? "online" : "offline"}`}>
                 {isConnected ? "Online" : "Connecting..."}
-              </span>
+              </span> */}
             </div>
           </div>
         </div>
       </div>
 
       {/* Messages */}
-      <div className="messages-container">
-        {messages.length === 0 && (
-          <div className="welcome-message">
-            <div className="message-avatar">
-              <Avatar>
-                <AvatarImage
-                  src={visitorData?.details?.bot_Logo || "/placeholder.svg"}
-                />
-                <AvatarFallback>CN</AvatarFallback>
-              </Avatar>
-            </div>
-            <div className="welcome-text">
-              {visitorData?.details?.Welcome_Message}
-            </div>
-          </div>
-        )}
-
-        {messages.map((message) => (
-          <div
-            key={message.id}
-            className={`message ${
-              message.sender === "user" ? "user-message" : "bot-message"
-            }`}
-          >
-            {message.sender === "bot" && (
-              <div className="message-avatar">
-                <Avatar>
-                  <AvatarImage
-                    src={visitorData?.details?.bot_Logo || "/placeholder.svg"}
-                  />
-                  <AvatarFallback>CN</AvatarFallback>
-                </Avatar>
-              </div>
-            )}
-            <div className="message-content">
-              {message.type === "voice" && message.audioUrl ? (
-                <div>
-                  <p>{message.content}</p>
-                  <audio
-                    controls
-                    src={message.audioUrl}
-                    preload="metadata"
-                    style={{
-                      width: "220px",
-                      margin: "unset",
-                      borderRadius: "22px",
-                      height: "40px",
-                    }}
-                  />
-                </div>
-              ) : (
-                <p>{message.content}</p>
-              )}
-              <span className="message-time">
-                {message.timestamp.toLocaleTimeString([], {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
-              </span>
-            </div>
-          </div>
-        ))}
-
-        {isTyping && (
-          <div className="message bot-message">
-            <div className="message-avatar">
-              <Avatar>
-                <AvatarImage
-                  src={visitorData?.details?.bot_Logo || "/placeholder.svg"}
-                />
-                <AvatarFallback>CN</AvatarFallback>
-              </Avatar>
-            </div>
-            <div className="message-content">
-              <div className="typing-indicator">
-                <span></span>
-                <span></span>
-                <span></span>
-              </div>
-            </div>
-          </div>
-        )}
-
-        <div ref={messagesEndRef} />
-      </div>
+      <Messages
+        messages={messages}
+        isTyping={isTyping}
+        messagesEndRef={messagesEndRef}
+      />
 
       <FormDialog
         isOpen={showFormDialog}
@@ -509,7 +430,7 @@ function App2() {
               !visitorData.details
                 ? "text-gray-400 cursor-not-allowed opacity-50"
                 : isRecording
-                ? "text-red-500 animate-pulse"
+                ? "text-(--primary-color) animate-pulse"
                 : "text-gray-500"
             }`}
             onClick={handleMicClick}

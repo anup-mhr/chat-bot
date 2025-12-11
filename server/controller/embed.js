@@ -14,7 +14,7 @@ exports.embedScripted = catchAsync(async function (req, res) {
         width: 70px;
         height: 70px;
         border-radius: 50%;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: #1c77bb;
         border: none;
         color: white;
         cursor: pointer;
@@ -149,7 +149,7 @@ exports.embedScripted = catchAsync(async function (req, res) {
     closeBtn.classList.add("close-button");
     closeBtn.ariaLabel = "Close Chatbot";
     closeBtn.textContent = "X";
-    closeBtn.innerHTML = \`\<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>\`\;
+    closeBtn.innerHTML = \`\<svg xmlns="http://www.w3.org/2000/svg"  width="20" height="20" viewBox="0 0 24 24" fill="#1c77bb" stroke="#1c77bb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>\`\;
     
 
     closeBtn.addEventListener("click", () => {
@@ -162,7 +162,15 @@ exports.embedScripted = catchAsync(async function (req, res) {
     callBtn.classList.add("call-button");
     callBtn.ariaLabel = "Call Chatbot";
 
-    callBtn.innerHTML = \`\<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-phone-call-icon"> <path d="M13 2a9 9 0 0 1 9 9"/> <path d="M13 6a5 5 0 0 1 5 5"/> <path d="M13.832 16.568a1 1 0 0 0 1.213-.303l.355-.465A2 2 0 0 1 17 15h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-.8 1.6l-.468.351a1 1 0 0 0-.292 1.233 14 14 0 0 0 6.392 6.384"/> </svg>\`\;
+    callBtn.innerHTML = \`\<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+              fill="none" stroke="#1c77bb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+              class="lucide lucide-phone-outgoing">
+              <title>Make a call</title>
+              <polyline points="22 8 22 2 16 2" />
+              <line x1="16" x2="22" y1="8" y2="2" />
+              <path
+                d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+            </svg>\`\;
 
     callBtn.addEventListener("click", () => {
       const iframe = document.querySelector("#chatbot-iframe iframe");
