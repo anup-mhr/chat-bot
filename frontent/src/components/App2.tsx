@@ -62,6 +62,7 @@ function App2() {
   const [firstMessage, setFirstMessage] = useState(true);
   const [isFormForCall, setIsFormForCall] = useState(false);
   const [formSubmit, setFormSubmit] = useState(false);
+  const [livechat, setLivechat] = useState(false);
 
   const { visitorData } = useVisitor();
   const env = import.meta.env;
@@ -78,11 +79,28 @@ function App2() {
     const socket = connectSocket(
       () => {
         setIsConnected(true);
-        console.log("Connected to socket server");
+
+        socket.emit(
+          "user:join",
+          visitorData.visitorId,
+          "all",
+          "User",
+          "web",
+          null,
+          visitorData.details,
+          null,
+          async (value: any, userData: any) => {
+            if (!value) {
+              return null;
+            }
+            if (value && value.hasOwnProperty("engagedWith")) {
+              setLivechat(true);
+            }
+          }
+        );
       },
       () => {
         setIsConnected(false);
-        console.log("Disconnected from socket server");
       },
       (error) => {
         console.error("Connection error:", error);
@@ -110,7 +128,9 @@ function App2() {
           payload: { ...voiceResponse },
           type: "audio",
         });
-      }
+      },
+      () => setLivechat(true),
+      () => setLivechat(false)
     );
 
     socketRef.current = socket;
@@ -189,14 +209,24 @@ function App2() {
     const socket = getSocket();
     if (!socket) return;
     console.log("Sending message:", { message, attachment });
-    socket.emit("user-message", {
-      message: message || null,
-      userDetails: userDetails,
-      details: visitorData ? visitorData.details : null,
-      sender: visitorData ? visitorData.visitorId : null,
-      source: "web",
-      attachment: attachment || null,
-    });
+    if (!livechat) {
+      socket.emit(
+        "user:message",
+        message || null,
+        userDetails,
+        visitorData ? visitorData.details : null,
+        visitorData ? visitorData.visitorId : null,
+        "web",
+        attachment || null
+      );
+    } else {
+      socket.emit(
+        "message:sent",
+        message || null,
+        null,
+        visitorData ? visitorData.details : null
+      );
+    }
   }
 
   async function renderMessage(
@@ -276,14 +306,13 @@ function App2() {
     if (!socket) return;
     console.log("Consoling formdata from getfile>>>", audioBlob);
 
-    socket.emit("voice-message", {
-      audio: audioBlob,
-      details: visitorData.details,
-      sender: visitorData.visitorId,
-      source: "web",
-      filename: `audiomessage_${Date.now()}.mp3`,
-      type: "audio",
-    });
+    socket.emit(
+      "voice:message",
+      audioBlob,
+      visitorData.visitorId,
+      `audiomessage_${Date.now()}.mp3`,
+      "audio"
+    );
   };
 
   const handleMicClick = () => {

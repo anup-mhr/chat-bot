@@ -5,7 +5,7 @@ const { successResponse } = require("../utils/successResponse");
 
 require("dotenv").config();
 exports.userLeadsController = catchAsync(async function (req, res, next) {
-  const url = `${process.env.CONTROL_PANEL_URL}/api/leads?branchId=${req.body.llmfields.branch_id}`;
+  const url = `${process.env.CONTROL_PANEL_PROTOCOL}://${process.env.CONTROL_PANEL_URL}/api/leads?branchId=${req.body.llmfields.branch_id}`;
   const panelKey = process.env.CONTROL_PANEL_KEY;
 
   console.log("request body and query in userlead", req.body);
@@ -46,7 +46,7 @@ exports.userLeadsController = catchAsync(async function (req, res, next) {
 });
 
 exports.getUserLeads = catchAsync(async function (req, res, next) {
-  const url = `${process.env.CONTROL_PANEL_URL}/api/leads/senderId/${req.query.sender_id}?branchId=${req.query.branchId}`;
+  const url = `${process.env.CONTROL_PANEL_PROTOCOL}://${process.env.CONTROL_PANEL_URL}/api/leads/senderId/${req.query.sender_id}?branchId=${req.query.branchId}`;
   const panelKey = process.env.CONTROL_PANEL_KEY;
 
   let headers = {

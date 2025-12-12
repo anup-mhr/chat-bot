@@ -1,19 +1,13 @@
 const express = require("express");
-const http = require("http");
 const socketIo = require("socket.io");
 const cors = require("cors");
 const path = require("path");
+var cookieParser = require("cookie-parser");
+const routeManager = require("./routes");
 
 const app = express();
-const server = http.createServer(app);
+var server = require("http").Server(app);
 
-// Import routes
-const embedScript = require("./routes/embed");
-const organizationUi = require("./routes/uiController");
-const chatHistoryRouter = require("./routes/chatHistory");
-const call = require("./routes/callController");
-const userDetail = require("./routes/userDetail");
-const { generateAIResponse, generateVoiceResponse } = require("./rasa");
 const fs = require("fs");
 const expressStaticGzip = require("express-static-gzip");
 
@@ -59,23 +53,12 @@ if (distExists) {
 }
 
 // Configure CORS
-const allowedOrigins =
-  process.env.NODE_ENV === "production"
-    ? [process.env.FRONTEND_URL || "https://your-domain.vercel.app"]
-    : [
-        "http://localhost:3000",
-        "http://localhost:4173",
-        "http://172.18.32.1:3000",
-        "http://localhost:5173",
-      ];
+const allowedOrigins = (process.env.SOCKET_ALLOWED_ORIGINS || "")
+  .split(",")
+  .map((o) => o.trim())
+  .filter(Boolean);
 
-const io = socketIo(server, {
-  cors: {
-    origin: allowedOrigins,
-    methods: ["GET", "POST"],
-    credentials: true,
-  },
-});
+const io = socketIo(server);
 
 app.use(
   cors({
@@ -85,22 +68,9 @@ app.use(
 );
 app.use(express.json());
 
-// Health check endpoint
-app.get("/health", (req, res) => {
-  res.json({ status: "OK", timestamp: new Date().toISOString() });
-});
-
-// API routes FIRST (before static files)
-app.use("/embed", embedScript);
-app.use("/rest/v1/ui", organizationUi);
-app.use("/rest/v1/chat", chatHistoryRouter);
-app.use("/rest/v1/call", call);
-app.use("/rest/v1/user", userDetail);
-
-app.get("/bot", (req, res) => {
-  res.sendFile(path.join(path.join(__dirname), "index.html"));
-});
-
+app.use(express.urlencoded({ extended: false }));
+app.use(cookieParser());
+app.use("/", routeManager);
 app.use(express.static(publicDirectoryPath));
 
 // Catch-all route for chatbot host
@@ -108,95 +78,95 @@ app.get("*", (req, res) => {
   res.sendFile(path.join(publicDirectoryPath, "index.html"));
 });
 
-// Socket.IO logic
-const activeSessions = new Map();
+const { init } = require("./socket");
+init(io);
 
-io.on("connection", (socket) => {
-  console.log(`User connected: ${socket.id}`);
+// io.on("connection", (socket) => {
+//   console.log(`User connected: ${socket.id}`);
 
-  activeSessions.set(socket.id, {
-    connectedAt: new Date(),
-    messageCount: 0,
-  });
+//   activeSessions.set(socket.id, {
+//     connectedAt: new Date(),
+//     messageCount: 0,
+//   });
 
-  socket.on("user-message", async (data) => {
-    const { message, details, sender, source, userDetails, attachment } = data;
-    console.log(
-      `Message from ${sender}: ${
-        message ? message : JSON.stringify(attachment)
-      }`
-    );
+//   socket.on("user-message", async (data) => {
+//     const { message, details, sender, source, userDetails, attachment } = data;
+//     console.log(
+//       `Message from ${sender}: ${
+//         message ? message : JSON.stringify(attachment)
+//       }`
+//     );
 
-    const session = activeSessions.get(socket.id);
-    if (session) {
-      session.messageCount++;
-    }
+//     const session = activeSessions.get(socket.id);
+//     if (session) {
+//       session.messageCount++;
+//     }
 
-    socket.emit("bot-typing");
+//     socket.emit("bot-typing");
 
-    try {
-      const aiResponse = await generateAIResponse(
-        message,
-        details,
-        sender,
-        source,
-        userDetails,
-        attachment
-      );
+//     try {
+//       const aiResponse = await generateAIResponse(
+//         message,
+//         details,
+//         sender,
+//         source,
+//         userDetails,
+//         attachment
+//       );
 
-      socket.emit("bot-stop-typing");
-      socket.emit("bot-message", aiResponse);
-    } catch (error) {
-      console.error("Error generating AI response:", error);
-      socket.emit("bot-stop-typing");
-      socket.emit("bot-message", {
-        message: "I'm sorry, I encountered an error. Please try again.",
-        messageId: Date.now().toString(),
-      });
-    }
-  });
+//       socket.emit("bot-stop-typing");
+//       socket.emit("bot-message", aiResponse);
+//     } catch (error) {
+//       console.error("Error generating AI response:", error);
+//       socket.emit("bot-stop-typing");
+//       socket.emit("bot-message", {
+//         message: "I'm sorry, I encountered an error. Please try again.",
+//         messageId: Date.now().toString(),
+//       });
+//     }
+//   });
 
-  socket.on("voice-message", async (data) => {
-    const { audio, details, sender, source, filename, type } = data;
-    console.log(`Voice message from ${sender} of ${filename}`);
+//   socket.on("voice-message", async (data) => {
+//     const { audio, details, sender, source, filename, type } = data;
+//     console.log(`Voice message from ${sender} of ${filename}`);
 
-    const session = activeSessions.get(socket.id);
-    if (session) {
-      session.messageCount++;
-    }
+//     const session = activeSessions.get(socket.id);
+//     if (session) {
+//       session.messageCount++;
+//     }
 
-    socket.emit("bot-typing");
+//     socket.emit("bot-typing");
 
-    try {
-      const voiceResponse = await generateVoiceResponse(
-        audio,
-        details,
-        sender,
-        source,
-        filename,
-        type
-      );
+//     try {
+//       const voiceResponse = await generateVoiceResponse(
+//         audio,
+//         details,
+//         sender,
+//         source,
+//         filename,
+//         type
+//       );
 
-      console.log(voiceResponse, "voice response after posting in dashboard");
+//       console.log(voiceResponse, "voice response after posting in dashboard");
 
-      socket.emit("bot-stop-typing");
-      socket.emit("voice-response", voiceResponse);
-    } catch (error) {
-      console.error("Error generating voice response:", error);
-      socket.emit("bot-stop-typing");
-      socket.emit("bot-message", {
-        message:
-          "I'm sorry, I couldn't process your voice message. Please try again.",
-        messageId: Date.now().toString(),
-      });
-    }
-  });
+//       socket.emit("bot-stop-typing");
+//       socket.emit("voice-response", voiceResponse);
+//     } catch (error) {
+//       console.error("Error generating voice response:", error);
+//       socket.emit("bot-stop-typing");
+//       socket.emit("bot-message", {
+//         message:
+//           "I'm sorry, I couldn't process your voice message. Please try again.",
+//         messageId: Date.now().toString(),
+//       });
+//     }
+//   });
 
-  socket.on("disconnect", () => {
-    console.log(`User disconnected: ${socket.id}`);
-    activeSessions.delete(socket.id);
-  });
-});
+//   socket.on("disconnect", () => {
+//     console.log(`User disconnected: ${socket.id}`);
+//     activeSessions.delete(socket.id);
+//   });
+// });
 
 const PORT = process.env.PORT || 3001;
 server.listen(PORT, () => {

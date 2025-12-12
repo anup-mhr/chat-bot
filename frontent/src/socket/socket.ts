@@ -32,10 +32,12 @@ export const connectSocket = (
   onBotMessage: (data: BotMessage) => void,
   onBotTyping: () => void,
   onBotStopTyping: () => void,
-  onVoiceResponse: (data: VoiceResponse) => void
+  onVoiceResponse: (data: VoiceResponse) => void,
+  onLivechatStarted: () => void,
+  onLivechatEnded: () => void
 ): Socket => {
   if (!socket) {
-    const socketUrl = "ws://localhost:3001";
+    const socketUrl = "http://localhost:3001";
 
     socket = io(socketUrl, {
       transports: ["websocket", "polling"],
@@ -46,10 +48,12 @@ export const connectSocket = (
     socket.on("connect", onConnect);
     socket.on("disconnect", onDisconnect);
     socket.on("connect_error", onConnectError);
-    socket.on("bot-message", onBotMessage);
-    socket.on("bot-typing", onBotTyping);
-    socket.on("bot-stop-typing", onBotStopTyping);
-    socket.on("voice-response", onVoiceResponse);
+    socket.on("message:received", onBotMessage);
+    socket.on("bot:typing", onBotTyping);
+    socket.on("botStop:typing", onBotStopTyping);
+    socket.on("voice:response", onVoiceResponse);
+    socket.on("livechat:started", onLivechatStarted);
+    socket.on("livechat:ended", onLivechatEnded);
   }
 
   return socket;

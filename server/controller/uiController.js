@@ -3,7 +3,7 @@ const { client } = require("../utils/redis");
 const catchAsync = require("../utils/catchAsync");
 require("dotenv").config();
 
-let Baseurl = process.env.CONTROL_PANEL_URL;
+let Baseurl = `${process.env.CONTROL_PANEL_PROTOCOL}://${process.env.CONTROL_PANEL_URL}`;
 exports.getPlatformSettings = catchAsync(async function (req, res) {
   let organization = req.query.organization;
   let usedField = req.query.usedField;

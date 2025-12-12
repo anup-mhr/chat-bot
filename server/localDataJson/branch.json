@@ -1,0 +1,374 @@
+[
+ {
+  "BRANCHES": "Anbhukhaireni",
+  "Column2": "27.902294862347716,84.53578957804044"
+ },
+ {
+  "BRANCHES": "Arunkhola,Nawalpur",
+  "Column2": "27.611544,83.953170"
+ },
+ {
+  "BRANCHES": "Baglung",
+  "Column2": "28.26966,83.59842"
+ },
+ {
+  "BRANCHES": "Balaju",
+  "Column2": "27.735297,85.315392"
+ },
+ {
+  "BRANCHES": "Banepa",
+  "Column2": "27.629576,85.528273"
+ },
+ {
+  "BRANCHES": "Baniyani",
+  "Column2": "26.431841,88.034326"
+ },
+ {
+  "BRANCHES": "Bardibas",
+  "Column2": "26.99013481965011,85.89285831183759"
+ },
+ {
+  "BRANCHES": "Beni - Myagdi ",
+  "Column2": "28.346151,83.566883"
+ },
+ {
+  "BRANCHES": "Bhadrapur",
+  "Column2": "26.567847,88.069381"
+ },
+ {
+  "BRANCHES": "Bhojpur",
+  "Column2": "27.1649857,87.0512619"
+ },
+ {
+  "BRANCHES": "Bhumahi",
+  "Column2": "27.577134377287656,83.69953866545714"
+ },
+ {
+  "BRANCHES": "Biratnagar",
+  "Column2": "26.4579444,87.2790556"
+ },
+ {
+  "BRANCHES": "Birauta",
+  "Column2": "28.19220,83.97177"
+ },
+ {
+  "BRANCHES": "Birendranagar",
+  "Column2": "28.595715,81.608411"
+ },
+ {
+  "BRANCHES": "Birgunj",
+  "Column2": "27.014079386841907,84.87940015160449"
+ },
+ {
+  "BRANCHES": "Butwal",
+  "Column2": "27.708199,83.464028"
+ },
+ {
+  "BRANCHES": "Chabahil",
+  "Column2": "27.7060,85.3337"
+ },
+ {
+  "BRANCHES": "Charikot",
+  "Column2": "27.6667,86.0333"
+ },
+ {
+  "BRANCHES": "Chautara",
+  "Column2": "27.774160,85.714591"
+ },
+ {
+  "BRANCHES": "Damak",
+  "Column2": "26.659103,87.698673"
+ },
+ {
+  "BRANCHES": "Damauli",
+  "Column2": "27.97495,84.26647"
+ },
+ {
+  "BRANCHES": "Devdaha",
+  "Column2": "27.644918,83.592536"
+ },
+ {
+  "BRANCHES": "Dhankuta",
+  "Column2": "26.973279933506834,87.34357574665884"
+ },
+ {
+  "BRANCHES": "Dhanusha",
+  "Column2": "26.871736,85.965766"
+ },
+ {
+    "BRANCHES": "Dhanusha",
+    "Column2": "26.869947,85.963077"
+},
+ {
+  "BRANCHES": "Dharan",
+  "Column2": "26.8162217,87.2857357"
+ },
+ {
+  "BRANCHES": "Dharan II",
+  "Column2": "26.816072314960078,87.28563156617335"
+ },
+ {
+  "BRANCHES": "Diktel",
+  "Column2": "27.2128588,86.7917438"
+ },
+ {
+  "BRANCHES": "Gaighat",
+  "Column2": "26.7911001,86.6998583"
+ },
+ {
+  "BRANCHES": "Gorkha",
+  "Column2": "27.9931166,84.6265332."
+ },
+ {
+  "BRANCHES": "Gwarko",
+  "Column2": "27.66638,85.33207,27.66822,85.33325"
+ },
+ {
+  "BRANCHES": "Harion",
+  "Column2": "27.090443007806904,85.55089946871361. "
+ },
+ {
+  "BRANCHES": "Hattigaunda",
+  "Column2": "27.75965751882864,85.34817068524761 "
+ },
+ {
+  "BRANCHES": "Hetauda",
+  "Column2": "27.4302758,85.0341767"
+ },
+ {
+  "BRANCHES": "IBRD",
+  "Column2": "28.6533078,80.4584346"
+ },
+ {
+  "BRANCHES": "Itahari",
+  "Column2": "26.661491216529427,87.2794421"
+ },
+ {
+  "BRANCHES": "Jajarkot",
+  "Column2": "28.701812,82.197972"
+ },
+ {
+  "BRANCHES": "Jaleshwor",
+  "Column2": "26.644808, 85.80164"
+ },
+ {
+  "BRANCHES": "Jawlakhel",
+  "Column2": "27.669943,85.320404."
+ },
+ {
+  "BRANCHES": "Jeetpur",
+  "Column2": "27.685365,83.17774 "
+ },
+ {
+  "BRANCHES": "Jorpati",
+  "Column2": "27.722467,85.372858"
+ },
+ {
+  "BRANCHES": "Kalaiya agency",
+  "Column2": "27.033956,85.005221"
+ },
+ {
+  "BRANCHES": "Pokhara",
+  "Column2": "28.204957341036717,84.00024552151797"
+ },
+ {
+  "BRANCHES": "Kawasoti",
+  "Column2": "27.92563565236221,84.11755145960008 "
+ },
+ {
+  "BRANCHES": "Koteshwor",
+  "Column2": "27°40'42.78,85°20'54.27"
+ },
+ {
+  "BRANCHES": "Kushma",
+  "Column2": "28.2181759,83.6788672"
+ },
+ {
+  "BRANCHES": "Lahan",
+  "Column2": "26.71674,86.48105"
+ },
+ {
+  "BRANCHES": "Lalbandi",
+  "Column2": " 27.054154835201455,85.62945239709057"
+ },
+ {
+  "BRANCHES": "Lamjung",
+  "Column2": "28.229693616328657,84.3775647337253"
+ },
+ {
+  "BRANCHES": "MahendraNagar",
+  "Column2": "28.9662477,80.1795745"
+ },
+ {
+  "BRANCHES": "Mahendranagar",
+  "Column2": "28.9662477,80.1795745 "
+ },
+ {
+  "BRANCHES": "Manigram",
+  "Column2": "27.608985,83.473429."
+ },
+ {
+  "BRANCHES": "Manthali",
+  "Column2": "27.38104,86.05782"
+ },
+ {
+  "BRANCHES": "Melamchi",
+  "Column2": "27.82464,85.57349"
+ },
+ {
+  "BRANCHES": "Mirchaiya",
+  "Column2": "26.838374514484684,86.2576091159237"
+ },
+ {
+  "BRANCHES": "Nijgadh-Bara",
+  "Column2": "27.208195514323073,85.12750595059579"
+ },
+ {
+  "BRANCHES": "Nuwakot",
+  "Column2": "27.9131850,85.1428351"
+ },
+ {
+  "BRANCHES": "Nuwakot",
+  "Column2": "27.9131850,85.1428351"
+ },
+ {
+  "BRANCHES": "Okhaldhunga",
+  "Column2": "27.321790607979295,86.50568146258591"
+ },
+ {
+  "BRANCHES": "Panchkhal",
+  "Column2": "27.6480712,85.6210651"
+ },
+ {
+  "BRANCHES": "Putalisadak",
+  "Column2": "27.7010910,85.3236839"
+ },
+ {
+  "BRANCHES": "Pyuthan",
+  "Column2": "28.120914,82.881444"
+ },
+ {
+  "BRANCHES": "Rajbiraj",
+  "Column2": "26.541052,86.750075 "
+ },
+ {
+  "BRANCHES": "Siraha",
+  "Column2": "26.66093,86.21327"
+ },
+ {
+  "BRANCHES": "Surkhet II",
+  "Column2": " 27.71792,85.31909"
+ },
+ {
+  "BRANCHES": "Syanja",
+  "Column2": "27.98412799987998,83.76219709683551"
+ },
+ {
+  "BRANCHES": "Tahachal",
+  "Column2": "27.69835,85.29128"
+ },
+ {
+  "BRANCHES": "Tarkeshwor",
+  "Column2": "​​​​​27.742955259791255,85.31252593925743"
+ },
+ {
+  "BRANCHES": "Thankot",
+  "Column2": "27.68950,85.22656"
+ },
+ {
+  "BRANCHES": "Tulsipur",
+  "Column2": "28.12757121197124,82.2951986378843"
+ },
+ {
+  "BRANCHES": "Gathhaghar",
+  "Column2": "27.2046,77.4977"
+ },
+ {
+  "BRANCHES": "Lamki",
+  "Column2": "28.62689,81.15563"
+ },
+ {
+  "BRANCHES": "Lekhnath",
+  "Column2": "28.1627177,84.0536714"
+ },
+ {
+  "BRANCHES": "Dhading",
+  "Column2": "27.9116895,84.8902839"
+ },
+ {
+  "BRANCHES": "Palpa",
+  "Column2": "27.8664062,83.5441237"
+ },
+ {
+  "BRANCHES": "Bhairahawa",
+  "Column2": "27.511020,83.452155"
+ },
+ {
+  "BRANCHES": "Dadeldhura",
+  "Column2": "29.302981845547578,80.59172415440656"
+ },
+ {
+  "BRANCHES": "Gulariya",
+  "Column2": "28.20733,81.34264."
+ },
+ {
+  "BRANCHES": "Inaruwa",
+  "Column2": "26.4710919,87.2699672"
+ },
+ {
+  "BRANCHES": "Sindhuli",
+  "Column2": "27.2077663,85.9093406837"
+ },
+ {
+  "BRANCHES": "Dhangadhi",
+  "Column2": "28.712294,80.569206"
+ },
+ {
+  "BRANCHES": "Chandrauta",
+  "Column2": "27.6587459,82.8532823"
+ },
+ {
+  "BRANCHES": "Solukhumbu",
+  "Column2": "27.56896,86.63086"
+ },
+ {
+  "BRANCHES": "Baitadi",
+  "Column2": "29.560533717722613,80.41838615680912"
+ },
+ {
+  "BRANCHES": "Khandbari",
+  "Column2": "27.3760556,87.2075187"
+ },
+ {
+  "BRANCHES": "Bhaktapur",
+  "Column2": "27.666332,85.4286665660"
+ },
+ {
+  "BRANCHES": "Ilam",
+  "Column2": "26.91001458844296,87.92797210940181"
+ },
+ {
+  "BRANCHES": "Birtamode",
+  "Column2": "26.640447,87.991349"
+ },
+ {
+  "BRANCHES": "Tandi",
+  "Column2": "27.622715,84.512169"
+ },
+ {
+  "BRANCHES": "Attariya",
+  "Column2": "28.811262,80.553961"
+ },
+ {
+  "BRANCHES": "Dulegaunda",
+  "Column2": "28.053339,84.072680"
+ },
+ {
+  "BRANCHES": "Kohalpur",
+  "Column2": "28.198206737429114,81.68010293856953"
+ },
+ {
+    "BRANCHES": "Head Office,Gyaneshwor",
+    "Column2": "27.70900, 85.33094"
+ }
+]

@@ -1,7 +1,7 @@
 const catchAsync = require("../utils/catchAsync");
 const fetch = require("node-fetch");
 const { encrypt } = require("../crypto.services");
-let Baseurl = process.env.CONTROL_PANEL_URL;
+let Baseurl = `${process.env.CONTROL_PANEL_PROTOCOL}://${process.env.CONTROL_PANEL_URL}`;
 let middleWareUrl = process.env.MIDDLEWARE_URL;
 exports.getCallSettings = catchAsync(async function (req, res) {
   let organization = req.query.organization;

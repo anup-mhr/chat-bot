@@ -192,24 +192,17 @@ async function generateAIResponse(
   );
 }
 
-async function generateVoiceResponse(
-  audio,
-  details,
-  sender,
-  source,
-  filename,
-  filetype
-) {
+async function uploadFile(audio, filename, filetype) {
   try {
-    let url = `${process.env.CONTROL_PANEL_URL}/api/media/singleLivechat`;
+    let url = `${process.env.CONTROL_PANEL_PROTOCOL}://${process.env.CONTROL_PANEL_URL}/api/media/singleLivechat`;
     if (filetype.startsWith("image/")) {
-      url = `${process.env.CONTROL_PANEL_URL}/api/media/singleLivechat`;
+      url = `${process.env.CONTROL_PANEL_PROTOCOL}://${process.env.CONTROL_PANEL_URL}/api/media/singleLivechat`;
     } else if (filetype.startsWith("audio")) {
-      url = `${process.env.CONTROL_PANEL_URL}/api/files/audioUploadLivechat`;
+      url = `${process.env.CONTROL_PANEL_PROTOCOL}://${process.env.CONTROL_PANEL_URL}/api/files/audioUploadLivechat`;
     } else if (filetype.startsWith("video")) {
-      url = `${process.env.CONTROL_PANEL_URL}/api/files/videoUploadLivechat`;
+      url = `${process.env.CONTROL_PANEL_PROTOCOL}://${process.env.CONTROL_PANEL_URL}/api/files/videoUploadLivechat`;
     } else {
-      url = `${process.env.CONTROL_PANEL_URL}/api/files/pdfUploadLivechat`;
+      url = `${process.env.CONTROL_PANEL_PROTOCOL}://${process.env.CONTROL_PANEL_URL}/api/files/pdfUploadLivechat`;
     }
 
     const panelKey = process.env.CONTROL_PANEL_KEY;
@@ -245,4 +238,4 @@ async function generateVoiceResponse(
   }
 }
 
-module.exports = { generateAIResponse, generateVoiceResponse };
+module.exports = { generateAIResponse, uploadFile };
