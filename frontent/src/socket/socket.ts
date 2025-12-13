@@ -6,6 +6,11 @@ let socket: Socket | null = null;
 interface BotMessage {
   result: string;
   sender: string;
+  message: string;
+  text: string;
+  id: string;
+  type: string;
+  uiMsg: string;
   response_time: number;
   "Tool Used?": boolean;
   "Language Required": string;
@@ -18,6 +23,14 @@ interface BotMessage {
     type: string;
   };
   question: string;
+
+  agentName?: string;
+  ping?: boolean;
+  notification?: boolean;
+  buttons?: {
+    title: string;
+    payload: string;
+  }[];
 }
 
 interface VoiceResponse {
@@ -63,6 +76,7 @@ export const getSocket = (): Socket | null => socket;
 
 export const disconnectSocket = () => {
   if (socket) {
+    console.log("I am inside socket disconnect");
     socket.disconnect();
     socket = null;
   }

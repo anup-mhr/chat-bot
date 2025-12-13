@@ -96,7 +96,6 @@ router.get(
       headers: headers,
     });
     const data = await response.json();
-    console.log(data, "data after login get user>>>");
     res.status(response.status).send({ ...data.data });
   })
 );

@@ -4,7 +4,6 @@ const xss = require("xss");
 
 const baseUrl = `${process.env.DASHBOARD_PROTOCOL}://${process.env.DASHBOARD_SERVER}:${process.env.DASHBOARD_PORT}`;
 const loggerModule = require("../logger/main");
-const { accessLogger } = loggerModule;
 
 exports.login = catchAsync(async function (req, res) {
   const url = `${process.env.CONTROL_PANEL_PROTOCOL}://${process.env.CONTROL_PANEL_URL}/api/auth/live-chat/login`;
@@ -32,8 +31,6 @@ exports.login = catchAsync(async function (req, res) {
   //   "Content-Type": "application/json",
   // };
 
-  console.log(bodyData, "consoling bodyData of user login123>>>");
-
   const response = await serverServices.postToServer(url, bodyData, headers);
 
   const data = await response.json();
@@ -42,26 +39,9 @@ exports.login = catchAsync(async function (req, res) {
     delete data.data.department;
   }
 
-  console.log(
-    data,
-    "consoling data of user login>>>",
-    data?.data?.organizationId
-    // data?.data?.organizationId != process.env.NEW_ORGANIZATION_ID
-  );
-
   // if (data?.data?.organizationId !== process.env.NEW_ORGANIZATION_ID) {
-  //   // no need to use errorLogger as the error is catched in errorController
   //   throw new Error("User not found with the given credentials");
   // }
-
-  accessLogger.log({
-    level: "info",
-    timestamp: new Date(),
-    message: {
-      botName: "Laxmi Didi",
-      title: "User Login",
-    },
-  });
 
   res.status(response.status).json({ msg: data.data });
 });

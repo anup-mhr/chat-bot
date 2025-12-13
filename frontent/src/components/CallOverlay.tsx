@@ -137,8 +137,6 @@ export function CallOverlay({
       }
       responseData.details.availableDays = availableDays;
 
-      console.log(responseData, "response data >>>>");
-
       // Get Final Settings
       const finalApiCallUrl = `${env.VITE_SOCKET_PROTOCOL}://${env.VITE_SOCKET_HOST}:${env.VITE_SOCKET_PORT}/${env.VITE_BASEPATH}/call/forFinalSettings`;
 

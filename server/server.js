@@ -58,7 +58,9 @@ const allowedOrigins = (process.env.SOCKET_ALLOWED_ORIGINS || "")
   .map((o) => o.trim())
   .filter(Boolean);
 
-const io = socketIo(server);
+const io = socketIo(server, {
+  maxHttpBufferSize: 1e8,
+});
 
 app.use(
   cors({

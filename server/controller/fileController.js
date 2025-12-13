@@ -6,7 +6,6 @@ const FormData = require("form-data");
 const keys = process.env;
 const baseUrl = `${keys.DASHBOARD_PROTOCOL}://${keys.DASHBOARD_SERVER}:${keys.DASHBOARD_PORT}`;
 
-const { accessLogger } = require("../logger/main");
 const whatsappBot = require("../bot/whatsapp.bot");
 
 exports.getFile = catchAsync(async function (req, res) {
@@ -36,7 +35,12 @@ exports.getWhatsappFile = catchAsync(async function (req, res) {
 
 exports.uploadFile = catchAsync(async function (req, res) {
   try {
-    console.log(req.body, req.file, "consoling request body and query of file>>>", req.query);
+    console.log(
+      req.body,
+      req.file,
+      "consoling request body and query of file>>>",
+      req.query
+    );
     let url = `${process.env.CONTROL_PANEL_PROTOCOL}://${process.env.CONTROL_PANEL_URL}/api/media/singleLivechat`;
     if (req.query.type.startsWith("image/")) {
       url = `${process.env.CONTROL_PANEL_PROTOCOL}://${process.env.CONTROL_PANEL_URL}/api/media/singleLivechat`;
@@ -66,7 +70,12 @@ exports.uploadFile = catchAsync(async function (req, res) {
     formData.append("file", req.file.buffer, req.file.originalname);
     formData.append("type", type);
 
-    console.log(formData, "consoling bodydata and url before posting>>>", url, type);
+    console.log(
+      formData,
+      "consoling bodydata and url before posting>>>",
+      url,
+      type
+    );
 
     const response = await fetch(url, {
       method: "POST",
@@ -79,14 +88,6 @@ exports.uploadFile = catchAsync(async function (req, res) {
     const data = await response.json();
 
     console.log(data, "data after post file>>>");
-
-    accessLogger.log({
-      level: "info",
-      timestamp: new Date(),
-      message: {
-        title: "Successfully fetched messages",
-      },
-    });
 
     const fileBaseUrl = process.env.FILE_BASE_URL;
     res.status(200).json({ data: data.data });
@@ -105,14 +106,6 @@ exports.deleteFile = catchAsync(async function (req, res) {
   const response = await serverServices.postToServer(url, req.body);
 
   const data = await response.json();
-
-  accessLogger.log({
-    level: "info",
-    timestamp: new Date(),
-    message: {
-      title: "Successfully fetched messages",
-    },
-  });
 
   res.status(response.status).json({ data });
 });

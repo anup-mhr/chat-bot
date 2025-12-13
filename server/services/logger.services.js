@@ -1,5 +1,4 @@
 const { postToServer } = require("./server.services");
-const { errorLogger } = require("../logger/main");
 
 const systemLogger = async (level, message, metaData, status, tag) => {
   // system logger
@@ -28,11 +27,6 @@ const systemLogger = async (level, message, metaData, status, tag) => {
       title: `${tag} error`,
       botName: "CG-bot",
     };
-    errorLogger.log({
-      level: "error",
-      timeStamp: new Date(),
-      message: messageJSON,
-    });
     console.log(messageJSON, "error Response");
   }
 };

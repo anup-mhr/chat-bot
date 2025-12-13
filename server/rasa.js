@@ -4,9 +4,6 @@ const FormData = require("form-data");
 require("dotenv").config();
 const fetch = require("node-fetch");
 require("dotenv").config();
-
-const baseUrl = `${process.env.SOCKET_PROTOCOL}://${process.env.DASHBOARD_SERVER}:${process.env.DASHBOARD_PORT}`;
-
 async function generateAIResponse(
   message,
   redisDetails,
@@ -16,7 +13,6 @@ async function generateAIResponse(
   attachment
 ) {
   let redisKey;
-  console.log(userDetails, "branchSelected", redisDetails);
   if (redisDetails?.branchSelected) {
     redisKey = `llmDetails:${redisDetails.branchSelected}`;
   } else {
@@ -53,11 +49,6 @@ async function generateAIResponse(
     details = await client.hget(redisKey, "llmDetails");
   }
 
-  console.log(
-    details,
-    "details to  pass in llM from generateAIResponse",
-    message
-  );
   let submetadata = {};
 
   if (!message && !attachment) {
@@ -76,7 +67,6 @@ async function generateAIResponse(
             : "",
         gdprLlm: redisDetails.gdpr ? String(redisDetails.gdpr) : "",
       };
-      console.log(submetadata, "submetdtaa>>>");
       if (details.type) {
         submetadata.type = details.type;
       }
@@ -149,17 +139,11 @@ async function generateAIResponse(
     body.configType = details.configType;
   }
   if (details.whatsappNumber) {
-    console.log("enterr whatsapp>>");
     body.whatsapp_number = details.whatsappNumber;
   }
   if (source === "facebook") {
-    console.log();
-    console.log({ metadata, body });
-    console.log();
     body.pg_id = metadata.pg_id;
   }
-
-  console.log(JSON.stringify(body), "body to  pass in llM");
 
   const headers = {
     "Content-Type": "application/json",
@@ -169,58 +153,45 @@ async function generateAIResponse(
 
   const response = await ServerServices.postToServer(openAi, body, headers);
   let responseData = await response.json();
-  console.log(responseData, "called>>>>", message, attachment);
 
   return responseData;
-
-  await new Promise((resolve) =>
-    setTimeout(resolve, 1000 + Math.random() * 2000)
-  );
-
-  const responses = [
-    "I understand your question. Let me help you with that.",
-    "That's an interesting point. Here's what I think...",
-    "I can definitely assist you with that. Let me provide some information.",
-    "Thank you for asking! Here's my response to your query.",
-    "I see what you're looking for. Let me explain this for you.",
-  ];
-
-  return (
-    responses[Math.floor(Math.random() * responses.length)] +
-    " " +
-    `You asked: "${message}". This is a simulated responsse. In a real implementation, you would integrate with an AI service like OpenAI, Claude, or other AI providers.`
-  );
 }
 
 async function uploadFile(audio, filename, filetype) {
   try {
-    let url = `${process.env.CONTROL_PANEL_PROTOCOL}://${process.env.CONTROL_PANEL_URL}/api/media/singleLivechat`;
-    if (filetype.startsWith("image/")) {
-      url = `${process.env.CONTROL_PANEL_PROTOCOL}://${process.env.CONTROL_PANEL_URL}/api/media/singleLivechat`;
-    } else if (filetype.startsWith("audio")) {
-      url = `${process.env.CONTROL_PANEL_PROTOCOL}://${process.env.CONTROL_PANEL_URL}/api/files/audioUploadLivechat`;
-    } else if (filetype.startsWith("video")) {
-      url = `${process.env.CONTROL_PANEL_PROTOCOL}://${process.env.CONTROL_PANEL_URL}/api/files/videoUploadLivechat`;
-    } else {
-      url = `${process.env.CONTROL_PANEL_PROTOCOL}://${process.env.CONTROL_PANEL_URL}/api/files/pdfUploadLivechat`;
-    }
-
+    const baseUrl = `${process.env.CONTROL_PANEL_PROTOCOL}://${process.env.CONTROL_PANEL_URL}/api`;
     const panelKey = process.env.CONTROL_PANEL_KEY;
 
-    if (!audio) {
-      throw new Error("audio is required");
-    }
+    if (!audio) throw new Error("audio is required");
 
-    let type = filetype.startsWith("image/")
-      ? "LIVE_CHAT_IMAGE"
-      : filetype.startsWith("audio")
-      ? "LIVE_CHAT_AUDIO"
-      : filetype.startsWith("video")
-      ? "LIVE_CHAT_VIDEO"
-      : "LIVE_CHAT_FILE";
+    const typeMap = {
+      image: "LIVE_CHAT_IMAGE",
+      audio: "LIVE_CHAT_AUDIO",
+      video: "LIVE_CHAT_VIDEO",
+      default: "LIVE_CHAT_FILE",
+    };
 
+    const endpointMap = {
+      image: "media/singleLivechat",
+      audio: "files/audioUploadLivechat",
+      video: "files/videoUploadLivechat",
+      default: "files/pdfUploadLivechat",
+    };
+
+    const baseType = filetype.split("/")[0];
+    const type = typeMap[baseType] || typeMap.default;
+    const endpoint = endpointMap[baseType] || endpointMap.default;
+    const url = `${baseUrl}/${endpoint}`;
+
+    // Build FormData
     const formData = new FormData();
-    formData.append("file", audio, filename);
+    formData.append(
+      "file",
+      audio,
+      type === "LIVE_CHAT_IMAGE"
+        ? { filename, contentType: filetype }
+        : filename
+    );
     formData.append("type", type);
 
     const response = await fetch(url, {
@@ -230,7 +201,6 @@ async function uploadFile(audio, filename, filetype) {
         apikey: panelKey,
       },
     });
-
     const data = await response.json();
     return { ...data.data };
   } catch (error) {

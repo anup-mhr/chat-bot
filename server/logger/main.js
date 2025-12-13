@@ -16,4 +16,4 @@ const levels = {
   silly: 5,
 };
 
-module.exports = { accessLogger, systemLogger, errorLogger, reactLogger };
+module.exports = {};

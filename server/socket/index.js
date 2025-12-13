@@ -3,7 +3,6 @@ const Handlers = require("./handlers");
 const eventsMap = require("./eventsMap");
 
 const { loggerInfo, loggerError } = require("../services/logger.services");
-const { errorLogger } = require("../logger/main");
 
 const USER_REDIS_KEY = `${process.env.ORGANIZATION_ID}:users`;
 const SESSION_REDIS_KEY = `${process.env.ORGANIZATION_ID}:sessions`;
@@ -37,11 +36,6 @@ const withErrorHandler = (action) =>
       loggerInfo(action, metadata, 200, eventName);
     } catch (error) {
       console.log(`ERROR IN SOCKET HANDLER ${action} => `, error);
-      errorLogger.log({
-        level: "error",
-        timestamp: new Date(),
-        message: { title: error.message },
-      });
       loggerError(error?.message || error, { action }, null, eventName);
       const callback = args.find((arg) => typeof arg === "function");
       return callback ? callback() : null;
@@ -49,6 +43,7 @@ const withErrorHandler = (action) =>
   };
 
 async function handleSocketPayload(payload) {
+  console.log(payload, "consoling payloads from handle socket payload");
   try {
     let [type, action, ...args] = payload.split(":");
     if (!type || !action) {
@@ -92,6 +87,14 @@ exports.init = function (io) {
   });
 
   io.sockets.on("connection", function (socket) {
+    socket.on("error", (error) => {
+      console.error("Socket error for", socket.id, ":", error);
+    });
+
+    socket.on("connect_error", (error) => {
+      console.error("Connection error:", error);
+    });
+
     socket.on("disconnect", (reason) => {
       activeSessions.delete(socket.id);
       console.log("Client disconnected:", reason);

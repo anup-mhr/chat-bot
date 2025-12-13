@@ -4,10 +4,8 @@ const catchAsync = require("../utils/catchAsync");
 const serverServices = require("../services/server.services");
 
 const loggerModule = require("../logger/main");
-const { accessLogger } = loggerModule;
 
 exports.getVisitors = catchAsync(async function (req, res) {
-  console.log(req.query, "request query of getVisitors>>>");
   const url = `${process.env.CONTROL_PANEL_PROTOCOL}://${process.env.CONTROL_PANEL_URL}/api/visitors/get-visitor-list-liveChat?client=${req.query.org_id}&branch_id=${req.query.branch_id}&date_range=${req.query.range}&perpage=100`;
   // req.query.branch_id
   //   ? url.searchParams.append("branches", req.query.branch_id)
@@ -19,7 +17,6 @@ exports.getVisitors = catchAsync(async function (req, res) {
     apikey: panelKey,
     authorization: `Bearer ${req.query.token}`,
   };
-  console.log(url, "consoling url from getvisitors>>>", headers);
 
   // const urls = `${baseUrl}/${process.env.BASEPATH}/visitors/source?organizationId=${
   //   process.env.ORGANIZATION_ID
@@ -40,7 +37,8 @@ exports.getVisitors = catchAsync(async function (req, res) {
     if (!acc[userId]) {
       acc[userId] = visitor;
     } else {
-      const existingHasDetails = Object.keys(acc[userId].clientDetails || {}).length > 0;
+      const existingHasDetails =
+        Object.keys(acc[userId].clientDetails || {}).length > 0;
       if (!existingHasDetails && hasDetails) {
         acc[userId] = visitor;
       }
@@ -58,15 +56,6 @@ exports.getVisitors = catchAsync(async function (req, res) {
       limit: data?.data?.limit ?? 100,
     },
   };
-
-  accessLogger.log({
-    level: "info",
-    timestamp: new Date(),
-    message: { title: "Visitors fetched successfully" },
-  });
-
-  console.log(JSON.stringify(filteredData), "filtered data of getvisitor>>>");
-
   res.status(response.status).json({ data: filteredData });
 });
 
@@ -87,7 +76,6 @@ exports.getVisitorCount = catchAsync(async function (req, res) {
   const response = await serverServices.getFromServer(url, headers);
 
   const data = await response.json();
-  accessLogger.log({ level: "info", timestamp: new Date(), message: { title: "Visitors count fetched successfully" } });
 
   res.status(response.status).json({ data });
 });

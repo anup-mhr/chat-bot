@@ -2,7 +2,7 @@
 
 :root {
   --primary-color: #1c77bb;
-  --secondary-color: #764ba2;
+  --secondary-color: #3390d1;
 }
 
 body {
@@ -540,7 +540,7 @@ body {
 }
 
 .status.online {
-  color: #4ade80;
+  color: red;
 }
 
 .status.offline {
@@ -732,21 +732,20 @@ body {
 }
 
 .send-button {
-  width: 36px;
-  height: 36px;
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
-  background: var(--primary-color);
+  background: var(--secondary-color);
   border: none;
   color: white;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s;
 }
 
 .send-button:hover:not(:disabled) {
-  transform: scale(1.05);
+  background: var(--primary-color);
 }
 
 .send-button:disabled {

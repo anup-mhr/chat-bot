@@ -77,6 +77,7 @@ class Handlers {
     }
     this._removeDataTimeout = handledSetTimeout(() => {
       // client.hdel(this._userRedisKey, this._user);
+      console.log("I am inside set Remove Data Timeout");
       this._socket.disconnect();
     }, seconds * 1000);
   }
@@ -86,6 +87,7 @@ class Handlers {
   }
 
   async disconnectHandler() {
+    console.log("I am inside disconnect Handler");
     const isSomeDeviceConnected =
       this._io.sockets.adapter.rooms[this._user]?.length > 0;
     if (isSomeDeviceConnected) {
@@ -130,6 +132,7 @@ class Handlers {
           },
         ],
       };
+      console.log("I am inside last of disconnect handler 1");
       return saveSessionInDashboard([agentSession]);
     }
 
@@ -200,7 +203,7 @@ class Handlers {
         runningAgent = eventData.data;
       }
     }
-
+    console.log("I am inside last of disconnect handler 2");
     // await client.hset(this._sessionRedisKey, this._user, sessionData)
     return saveSessionInDashboard(
       sessions.reverse().map((session) => ({
@@ -211,7 +214,6 @@ class Handlers {
   }
 
   async userSetStatus(status = "passive") {
-    console.log(status, "checkstatus>>>>:::");
     await client.hset(this._userRedisKey, this._user, { status });
     if (status === "passive") {
       const allUsers = await client.hgetall(this._userRedisKey);
@@ -251,7 +253,6 @@ class Handlers {
   }
 
   async userSetData(data) {
-    console.log(data, "data from userSetData>>>");
     const validKeys = [
       "name",
       "origin",
@@ -303,7 +304,6 @@ class Handlers {
 
   async formFilled(llmFields, visitorId) {
     const visitorData = await client.hget(this._userRedisKey, visitorId);
-    console.log(visitorData, "visitor Data from form filled>>>", visitorId);
     if (visitorData) {
       this.userSetData({ ...visitorData });
     }
@@ -319,7 +319,6 @@ class Handlers {
     profileDetails,
     callback = (value) => value
   ) {
-    console.log(llmFields, "llm:::>>", source);
     if (!userId || (this._user && this._user !== userId)) {
       return callback(false);
     }
@@ -330,7 +329,6 @@ class Handlers {
     this._user = userId;
     this._source = this._source || source;
     const user = await client.hget(this._userRedisKey, this._user);
-    console.log(user, "usercheckkkk>>>", this._user);
     if (user.joined) {
       this._socket.to(this._user).emit("user:alreadyJoined", userId);
     }
@@ -357,7 +355,6 @@ class Handlers {
     }
 
     // const data = await saveUserInDashboard(this._user, this._source, botUserData, llmFields);
-    // console.log(data, "data from saveUserInDashboard>>>");
 
     let data = await client.hget(this._userRedisKey, this._user);
     let jsondata = {
@@ -455,70 +452,6 @@ class Handlers {
     }
   }
 
-  // async userBroadcast(req_type) {
-  //   console.log(this._user, "thisusercheck>>>>");
-
-  //   const users = await client.hgetall(this._userRedisKey);
-  //   const userSegregate = await client.hget(this._userRedisKey, this._user);
-  //   if (userSegregate.role !== "Agent") {
-  //     return;
-  //   }
-  //   console.log(userSegregate, "userSegregate>>>>");
-
-  //   let visitorsAndAgents = Object.entries(users).map(([userId, data]) => ({
-  //     userId,
-  //     ...data,
-  //     connected: true,
-  //   }));
-
-  //   console.log(JSON.stringify(visitorsAndAgents), ">visitorsAndAgents>>>>>");
-
-  //   const agentOrgId = userSegregate?.AgentDetails?.org_id;
-  //   const agentBranchIds = userSegregate?.AgentDetails?.branch_id || []; // now array
-  //   const agentRegionIds = userSegregate?.AgentDetails?.region_id || []; // now array
-
-  //   // 🚫 If agent has no branches, they should not see any visitors
-  //   if (!Array.isArray(agentBranchIds) || agentBranchIds.length === 0) {
-  //     visitorsAndAgents = [];
-  //   } else {
-  //     visitorsAndAgents = visitorsAndAgents.filter((user) => {
-  //       // keep agent themself if desired
-  //       if (user.userId === this._user) return true;
-
-  //       if (user.role !== "User") return false;
-
-  //       const userOrgId = user?.UserConnectedDetails?.org_id;
-  //       const userBranchId = user?.UserConnectedDetails?.branch_id;
-  //       const userRegionId = user?.UserConnectedDetails?.region_id;
-
-  //       const sameOrg = agentOrgId && userOrgId && agentOrgId === userOrgId;
-
-  //       // ✅ check if user’s branch/region is included in agent arrays
-  //       const branchMatch = Array.isArray(agentBranchIds) && userBranchId && agentBranchIds.includes(userBranchId);
-
-  //       const regionMatch = Array.isArray(agentRegionIds) && userRegionId && agentRegionIds.includes(userRegionId);
-
-  //       return sameOrg && (branchMatch || regionMatch);
-  //     });
-  //     console.log(visitorsAndAgents, "afterfiltering>>>>>");
-  //   }
-
-  //   if (userSegregate.role === "Agent") {
-  //     console.log(JSON.stringify(visitorsAndAgents), "finalvisitorsAndAgents>>>>");
-  //     this._io.to(this._user).emit("livechat:users", visitorsAndAgents);
-  //   }
-
-  //   if (req_type) {
-  //     let agents = [];
-  //     visitorsAndAgents.forEach((agent) => {
-  //       if (agent.role === "Agent" && (req_type === "all" ? true : agent.category === req_type)) {
-  //         agents.push({ userId: agent.userId, category: agent.category });
-  //       }
-  //     });
-  //     return agents;
-  //   }
-  // }
-
   async livechatUsers() {
     const agent = await client.hget(this._userRedisKey, this._user);
     if (agent.role !== "Agent") {
@@ -526,7 +459,6 @@ class Handlers {
     }
 
     const users = await client.hgetall(this._userRedisKey);
-    console.log(users, "keydifff>>>>", agent);
 
     const categoryUsers = [];
 
@@ -568,13 +500,10 @@ class Handlers {
       return sameOrg && (sameBranch || sameRegion);
     });
 
-    console.log(uniqueUsers, "USersssunique::>>");
-
     this._socket.emit("livechat:users", uniqueUsers);
   }
 
   async sendMessagesAtInterval(data, userId, llmfields, secondsToWait = 3) {
-    console.log(data, "dtaaaa>>>");
     const indexWiseResponse = async (counter) => {
       const responseMessage = data[counter].responseMessage || data[counter];
       this._io
@@ -639,14 +568,8 @@ class Handlers {
     attachedMessage,
     intervene = false
   ) {
-    console.log(
-      { requestId, onlyOppositeRole, attachedMessage, intervene },
-      "inlivechatrequest>>>"
-    );
     const requester = await client.hget(this._userRedisKey, this._user);
-    console.log(requester, "inlivechatrequest::::::");
     if (requester.role === "User") {
-      console.log("livechatRequest One");
       // revert from here
       const oppositeRole = requester.role === "User" ? "Agent" : "User";
       const allUsers = await client.hgetall(this._userRedisKey);
@@ -659,7 +582,6 @@ class Handlers {
           (user.role === "User" || user.status === "active")
       );
       if (!isSomeoneAvailable) {
-        console.log("livechatRequest One.1");
         // let isActive = await this.checkIsAgentActiveOrNot(category);
         // const rasaResponse = await RasaAPI.getIntentRequest(
         //   "/talk_with_agent",
@@ -682,11 +604,6 @@ class Handlers {
       }
       // revert to here
       if (requester.init_req === this._user) {
-        console.log("livechatRequest One.2");
-        console.log(
-          { requester, user: this._user },
-          "checkalreadyrequested>>>"
-        );
         const selfalreadyRequested = await messages.alreadyRequestedself();
         return this._io
           .to(this._user)
@@ -705,10 +622,8 @@ class Handlers {
     const category =
       (requester.role === "User" && requestId) || requester.category || "all";
     const requestee = await client.hget(this._userRedisKey, requestId);
-    console.log(requestee, "requestee>>>", requester);
 
     if (requester.role === "User" && requester.engagedWith) {
-      console.log("livechatRequest Two");
       const alreadyEngagedMessage = await messages.alreadyEngaged(
         null,
         requester.engagedWith,
@@ -734,7 +649,6 @@ class Handlers {
     const allUsers = await client.hgetall(this._userRedisKey);
 
     if (requester.role === "User") {
-      console.log("livechatRequest Three");
       const isSomeoneAvailable = Object.values(allUsers).some(
         (user) =>
           (!onlyOppositeRole || user.role === oppositeRole) &&
@@ -742,7 +656,6 @@ class Handlers {
           (user.role === "User" || user.status === "active")
       );
       if (!isSomeoneAvailable) {
-        console.log("livechatRequest three.1");
         let isActive = await this.checkIsAgentActiveOrNot(category);
         const rasaResponse = await RasaAPI.getIntentRequest(
           "/talk_with_agent",
@@ -766,7 +679,6 @@ class Handlers {
     }
 
     if (requestee.engagedWith) {
-      console.log("livechatRequest four");
       const alreadyEngagedMessage = await messages.alreadyEngaged(
         requestId,
         requestee.engagedWith,
@@ -781,7 +693,6 @@ class Handlers {
       return;
     }
     if (requestee.requester) {
-      console.log("livechatRequest five");
       const alreadyRequestedMessage = await messages.alreadyRequested(
         requestId,
         requestee.requester,
@@ -797,7 +708,6 @@ class Handlers {
     }
 
     if (requester.role === "Agent" && requestee.role === "User" && intervene) {
-      console.log("livechatRequest six");
       return this.livechatStart(
         requestId,
         this._user,
@@ -820,7 +730,6 @@ class Handlers {
     );
 
     if (requester.role === "Agent" && requestId) {
-      console.log("livechatRequest seven");
       this._io
         .to(requestId)
         .emit(
@@ -848,17 +757,11 @@ class Handlers {
       // }, 100);
       await this.userBroadcast();
     } else if (onlyOppositeRole) {
-      console.log("livechatRequest eight");
       const oppositeUsers = Object.entries(allUsers).filter(
         ([_, data]) =>
           (category === "all" || data.category === category) &&
           data.role === oppositeRole &&
           (data.role === "User" || data.status === "active")
-      );
-      console.log(
-        JSON.stringify(oppositeUsers),
-        "oppppusersss>>>>>>",
-        requester
       );
 
       const requesterBranchId = requester?.UserConnectedDetails?.branch_id;
@@ -880,7 +783,6 @@ class Handlers {
         });
       }
     } else {
-      console.log("livechatRequest nine");
       this._socket
         .to(category)
         .to("all")
@@ -946,10 +848,8 @@ class Handlers {
     }, 100);
     handledSetTimeout(async () => {
       const userData = await client.hget(this._userRedisKey, this._user);
-      console.log(userData, "userdataaa>>>");
       let acceptedIndiv = userData.acceptedIndiv || [];
       let rejectedIndiv = userData.rejectedIndiv || [];
-      console.log(acceptedIndiv, "checkkkacept>>");
       if (acceptedIndiv.length > 0) {
         await client.hset(this._userRedisKey, this._user, {
           acceptedIndiv: undefined,
@@ -968,8 +868,6 @@ class Handlers {
       });
       this._io.to(this._user).emit("livechatRequest:expire");
       const expiredRequestMessage = await messages.expiredRequest(requestId);
-
-      console.log(userData, "role><><", this._user);
 
       const expiredRequestMessageOpposite =
         await messages.expiredRequestOpposite(userData.role, this._user);
@@ -1655,19 +1553,19 @@ class Handlers {
       this._userRedisKey
     );
 
-    this.callRasa(
-      "/customer_rating",
-      {
-        agentId,
-        livechat_end: true,
-        visitorId,
-        source: senderUser.source,
-        sender: visitorId,
-      },
-      "/customer_rating",
-      visitorId,
-      responseMessage
-    );
+    // this.callRasa(
+    //   "/customer_rating",
+    //   {
+    //     agentId,
+    //     livechat_end: true,
+    //     visitorId,
+    //     source: senderUser.source,
+    //     sender: visitorId,
+    //   },
+    //   "/customer_rating",
+    //   visitorId,
+    //   responseMessage
+    // );
     console.log(agentId, "agentIdforrating>>>");
 
     if (!broadcast) {
@@ -1735,6 +1633,7 @@ class Handlers {
     //   console.log(JSON.stringify(message), "ratingmessage>>>>");
     //   return postRate(message.payload.payload, message.payload.payload.split(":")[0].trim(), message.sender);
     // }
+    console.log(message, "consoling message from message sent");
     let guided = message.guided || null;
     const sender = this._user;
     const source = this._source;
@@ -1795,7 +1694,7 @@ class Handlers {
       metadata.source = source;
       return await this.callRasa(message, metadata, "", sender);
     }
-    message.type = message.type || "userMessage";
+    message.type = message?.type || "userMessage";
     message = sanitizeMessage(message);
     message.text =
       message.text ||
@@ -2194,14 +2093,14 @@ class Handlers {
     if (["Lead", "lead"].includes(payload)) {
       return null;
     }
-    // fetch response from rasa api
-    await this.callRasa(
-      message.latitude ? message : message.inputValue ? message : payload,
-      metadata,
-      text,
-      sender,
-      responseMessage
-    );
+    // // fetch response from rasa api
+    // await this.callRasa(
+    //   message.latitude ? message : message.inputValue ? message : payload,
+    //   metadata,
+    //   text,
+    //   sender,
+    //   responseMessage
+    // );
   }
 
   async checkIsAgentActiveOrNot(catagory = null) {
@@ -2265,12 +2164,6 @@ class Handlers {
   }
 
   async userMessage(message, userDetails, details, sender, source, attachment) {
-    console.log(
-      `Message from ${sender}: ${
-        message ? JSON.stringify(message) : JSON.stringify(attachment)
-      }`
-    );
-
     // const session = activeSessions.get(socket.id);
     // if (session) {
     //   session.messageCount++;
@@ -2297,13 +2190,17 @@ class Handlers {
     };
 
     const messageId = crypto.randomUUID();
-    console.log(message, "usermessageinhandlers>>>");
     await this.broadcastToAgents(
       "message:received",
       {
         text: message,
         payload: message,
-        attachment: attachment,
+        ...(attachment?.payload && {
+          attachment: {
+            payload: attachment?.payload?.path,
+            type: attachment?.type,
+          },
+        }),
         type: "userMessage",
         id: messageId,
       },
@@ -2325,8 +2222,18 @@ class Handlers {
       this._io.to(sender).emit("message:received", aiResponse);
       const agentMessage = {
         type: "botMessage",
-        text: aiResponse.result || aiResponse.message || "",
+        text:
+          aiResponse?.result ||
+          aiResponse?.message ||
+          aiResponse?.custom?.text ||
+          "",
         id: crypto.randomUUID(),
+        // ...(aiResponse?.custom?.path && {
+        //   attachment: {
+        //     payload: aiResponse?.custom?.path,
+        //     type: aiResponse?.custom?.type,
+        //   },
+        // }),
       };
       await this.broadcastToAgents(
         "message:received",
@@ -2345,8 +2252,6 @@ class Handlers {
   }
 
   async voiceMessage(audio, sender, filename, type) {
-    console.log(`Voice message from ${sender} of ${filename}`);
-
     // const session = activeSessions.get(socket.id);
     // if (session) {
     //   session.messageCount++;

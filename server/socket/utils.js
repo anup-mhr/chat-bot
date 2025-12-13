@@ -9,8 +9,6 @@ const { messengerBot, instagramBot } = require("../bot/facebook.bot");
 const whatsappBot = require("../bot/whatsapp.bot");
 const viberBot = require("../bot/viber.bot");
 
-const { errorLogger } = require("../logger/main");
-
 const REDIS_KEY = `${process.env.ORGANIZATION_ID}:users`;
 const { client } = require("../utils/redis");
 // const telegramBot = require("../bot/telegram.bot");
@@ -21,7 +19,6 @@ const handledSetTimeout = (callback, timeout) => {
       await callback();
     } catch (error) {
       console.log("ERROR IN SET TIMEOUT => ", error);
-      errorLogger.log({ level: "error", timestamp: new Date(), message: { title: error.message } });
     }
   }, timeout);
 };
@@ -35,9 +32,11 @@ const sanitizeMessage = (message) => {
       ? {
           attachment: {
             ...attachment,
-            type: typeof attachment.type === "string" ? attachment.type : "unknown",
+            type:
+              typeof attachment.type === "string" ? attachment.type : "unknown",
             payload:
-              typeof attachment.payload === "string" || typeof attachment.payload === "object"
+              typeof attachment.payload === "string" ||
+              typeof attachment.payload === "object"
                 ? attachment.payload
                 : "invalid attachment",
           },
@@ -53,7 +52,9 @@ const getUserData = async (userId, requesterRole = null) => {
   const userData = await client.hget(REDIS_KEY, userId);
   let userDispId = userId.replaceAll("_", " ").toUpperCase();
   if (requesterRole) {
-    userDispId = ["agent", "Agent"].includes(requesterRole) ? "Agent" : userId.replaceAll("_", " ").toUpperCase();
+    userDispId = ["agent", "Agent"].includes(requesterRole)
+      ? "Agent"
+      : userId.replaceAll("_", " ").toUpperCase();
   }
   return {
     name:
@@ -76,8 +77,6 @@ const saveUserInDashboard = async (id, branch_id) => {
     "Content-Type": "application/json",
     apikey: panelKey,
   };
-
-  console.log(url, "url backend of getUserLeads");
   ServerServices.getFromServer;
 
   let response = await ServerServices.getFromServer(url, headers);
@@ -101,13 +100,18 @@ const saveUserInDashboard = async (id, branch_id) => {
 };
 
 const flattenAttachmentPayload = (message) => {
-  if (message.attachment && typeof message.attachment === "object" && message.attachment.payload) {
+  if (
+    message.attachment &&
+    typeof message.attachment === "object" &&
+    message.attachment.payload
+  ) {
     return {
       ...message,
       attachment: {
         ...message.attachment,
         payload:
-          typeof message.attachment.payload === "object" && message.attachment.payload.path
+          typeof message.attachment.payload === "object" &&
+          message.attachment.payload.path
             ? message.attachment.payload.path
             : message.attachment.payload,
       },
@@ -117,13 +121,29 @@ const flattenAttachmentPayload = (message) => {
 };
 
 const sendOfflineMessage = async (message, metadata, source) => {
-  console.log({message, metadata, source}, "sendOfflineMessage called>>>");
-  const bot = { fb: messengerBot, instagram: instagramBot, viber: viberBot, whatsapp: whatsappBot }[source];
-  if (!bot || !bot.handleResponseMessageoffline || typeof bot.handleResponseMessageoffline !== "function") {
-    console.log("Bot or handleResponseMessage function not found for source:", source);
+  console.log({ message, metadata, source }, "sendOfflineMessage called>>>");
+  const bot = {
+    fb: messengerBot,
+    instagram: instagramBot,
+    viber: viberBot,
+    whatsapp: whatsappBot,
+  }[source];
+  if (
+    !bot ||
+    !bot.handleResponseMessageoffline ||
+    typeof bot.handleResponseMessageoffline !== "function"
+  ) {
+    console.log(
+      "Bot or handleResponseMessage function not found for source:",
+      source
+    );
     return null;
   }
-  return bot.handleResponseMessageoffline(message, metadata, metadata.receipent);
+  return bot.handleResponseMessageoffline(
+    message,
+    metadata,
+    metadata.receipent
+  );
 };
 
 const saveSessionInDashboard = async (data) => {
@@ -151,9 +171,8 @@ const bypassRasa = function (socket, message, userID) {
 
   if (message === "Get Started") {
     socket.emit("message:received", localData.menu);
-  }
-  else if (message === 'test') {
-    socket.emit('message:received', localData.loc_test);
+  } else if (message === "test") {
+    socket.emit("message:received", localData.loc_test);
   }
   // else if (message === "test") {
   //   socket.emit("message:received", localData.viewPremiumDue);

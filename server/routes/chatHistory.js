@@ -5,7 +5,6 @@ const visitorController = require("../controller/visitorController");
 const messageController = require("../controller/messageController");
 const fileController = require("../controller/fileController");
 const catchAsync = require("../utils/catchAsync");
-const { reactLogger } = require("../logger/main");
 
 router.post("/login", authController.login);
 router.get("/visitors", visitorController.getVisitors);
@@ -20,11 +19,7 @@ router.post(
   "/error",
   catchAsync(async (req, res) => {
     const { title, username } = req.body;
-    reactLogger.log({
-      level: "error",
-      timestamp: new Date(),
-      message: { title, userID: username },
-    });
+
     res.status(200).send({});
   })
 );

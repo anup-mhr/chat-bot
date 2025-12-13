@@ -9,7 +9,6 @@ exports.getPlatformSettings = catchAsync(async function (req, res) {
   let usedField = req.query.usedField;
   let queryParams = req.query.queryParams;
   let url = `${Baseurl}/api/platformSetting?${queryParams}=${usedField}&channel=web`;
-  console.log(url, "checkurlplatform>>>");
   let response = await fetch(url, {
     method: "GET",
     headers: {
@@ -18,7 +17,6 @@ exports.getPlatformSettings = catchAsync(async function (req, res) {
     },
   });
   let result = await response.json();
-  console.log(result, "result>>>");
   return res.send(result);
 });
 exports.getOrgUi = catchAsync(async function (req, res) {
@@ -26,11 +24,9 @@ exports.getOrgUi = catchAsync(async function (req, res) {
   let branch = req.query.branch || null;
   let sender = req.query.sender;
   let region = req.query.region || null;
-  console.log({ organization, branch, region }, "checkobjeec>>");
   let url = `${Baseurl}/api/bot/get-bot/${organization}${
     branch ? (branch !== "all" ? `?branch=${branch}` : "") : `?region=${region}`
   }`;
-  console.log(url, "checkurl>>>");
   let response = await fetch(url, {
     method: "GET",
     headers: {
@@ -39,7 +35,6 @@ exports.getOrgUi = catchAsync(async function (req, res) {
     },
   });
   let result = await response.json();
-  console.log(result, "result>>>");
   let org_data = {};
   if (result.success === false || !result.data) {
     org_data = {
@@ -115,11 +110,8 @@ exports.getOrgUi = catchAsync(async function (req, res) {
       useRegion:
         result.data?.useRegion === undefined ? true : result.data?.useRegion,
     };
-    console.log(llmDetails, "forRedis>>>");
     await client.hset(redisKey, "llmDetails", llmDetails, 7200);
   }
-
-  console.log(org_data, "org_data>>>");
 
   return res.send(org_data);
 });
@@ -128,7 +120,6 @@ exports.getBranch = catchAsync(async function (req, res) {
     let region = req.query.region;
     let url = `${Baseurl}/api/branches/branches-list?region=${region}`;
     // let url = `https://0a61-103-163-182-174.ngrok-free.app/api/branches/branches-list?region=67445b6a00e18b32203fe222`;
-    console.log(url, "url>>>");
     let response = await fetch(url, {
       method: "GET",
       headers: {
@@ -141,7 +132,6 @@ exports.getBranch = catchAsync(async function (req, res) {
     result.data.branches.forEach((data) => {
       branchList.push({ branchName: data.name, branchId: data._id });
     });
-    console.log(branchList, "checkBranch>>>>");
     res.send(branchList);
   } catch (error) {
     res.send([]);
@@ -152,7 +142,6 @@ exports.checkUrl = catchAsync(async function (req, res) {
   let userUrl = req.query.userUrl;
   try {
     let url = `${Baseurl}/api/bot/bot-url/${organization}?webUrl=${userUrl}`;
-    console.log(url, "url>>>");
     let response = await fetch(url, {
       method: "GET",
       headers: {
@@ -161,7 +150,6 @@ exports.checkUrl = catchAsync(async function (req, res) {
       },
     });
     let result = await response.json();
-    console.log(result, "result>>>");
     let org_data = {};
     if (result.success === false) {
       org_data = {
@@ -221,9 +209,6 @@ exports.checkUrl = catchAsync(async function (req, res) {
 
       await client.hset(redisKey, "llmDetails", llmDetails, 7200);
     }
-
-    console.log(org_data, "org_data>>>");
-
     return res.send(org_data);
   } catch (error) {
     console.log("Error on url>>", error);

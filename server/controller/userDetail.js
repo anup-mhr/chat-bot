@@ -30,7 +30,6 @@ exports.userLeadsController = catchAsync(async function (req, res, next) {
 
   let response = await newPostToServer(url, leads, headers);
   let data = await response;
-  console.log(data, "response dat");
   let type = "Your Leads has been submitted successfully.";
   let messageJSON = {
     botName: "Palm-bot",
@@ -54,12 +53,8 @@ exports.getUserLeads = catchAsync(async function (req, res, next) {
     apikey: panelKey,
   };
 
-  console.log(url, "url backend of getUserLeads");
-
   let response = await getFromServer(url, headers);
   let data = await response.json();
-
-  console.log(data.data, "response dat");
 
   if (!data || data.success === false) {
     return res.json({
