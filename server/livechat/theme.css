@@ -1,0 +1,23 @@
+:root {
+    --global-font: "Inter";
+    --primary-dark: #38169c;
+    --primary: #7E71F2;
+    --primary-light: #f0f4fd;
+    --light: #DFE3FF;
+    --success-light: #4FB84D;
+    --success: #2EA745;
+    --success-dark: #0E5715;
+    --danger-light: #FF6435;
+    --danger: #FF0000;
+    --danger-dark: #EE0000;
+    --dim: #f5f6f7;
+    --dim-dark: #4c5575;
+    --black-25: #00000040;
+    --black-50: #00000080;
+    --black-75: #000000bf;
+    --black: #000000;
+    --white-25: #ffffff40;
+    --white-50: #ffffff80;
+    --white-75: #ffffffbf;
+    --white: #ffffff;
+}

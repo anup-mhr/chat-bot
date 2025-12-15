@@ -22,9 +22,17 @@ interface MessagesProps {
   isTyping: boolean;
   messages: Message[];
   messagesEndRef: React.RefObject<HTMLDivElement | null>;
+  showModules: boolean;
+  handleButtonClick: (type: string, title: string, payload: string) => void;
 }
 
-const Messages = ({ messages, isTyping, messagesEndRef }: MessagesProps) => {
+const Messages = ({
+  messages,
+  isTyping,
+  messagesEndRef,
+  showModules,
+  handleButtonClick,
+}: MessagesProps) => {
   const { visitorData } = useVisitor();
   return (
     <div className="messages-container">
@@ -48,7 +56,11 @@ const Messages = ({ messages, isTyping, messagesEndRef }: MessagesProps) => {
             </div>
           )}
           {message.type === "quick_reply" ? (
-            <QuickReply data={message} />
+            <QuickReply
+              data={message}
+              showModules={showModules}
+              handleButtonClick={handleButtonClick}
+            />
           ) : (
             <GeneralReply data={message} />
           )}

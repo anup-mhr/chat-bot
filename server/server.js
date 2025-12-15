@@ -12,13 +12,55 @@ const fs = require("fs");
 const expressStaticGzip = require("express-static-gzip");
 
 // Serve static chatbot files
-const publicDirectoryPath = path.join(__dirname, "./dist");
-const distExists = fs.existsSync(publicDirectoryPath);
+const botPath = path.join(__dirname, "./dist");
+const botDistExists = fs.existsSync(botPath);
 
-if (distExists) {
+const livechatPath = path.join(__dirname, "./livechat");
+const livechatdistExists = fs.existsSync(livechatPath);
+
+if (botDistExists) {
   // Serve pre-compressed files (Brotli and Gzip)
   app.use(
-    expressStaticGzip(publicDirectoryPath, {
+    "/chatbot",
+    expressStaticGzip(botPath, {
+      enableBrotli: true,
+      orderPreference: ["br", "gz"], // Prefer Brotli, fallback to Gzip
+      index: false, // Don't auto-serve index.html
+      serveStatic: {
+        maxAge: "0",
+        etag: true,
+        lastModified: true,
+        immutable: true,
+        setHeaders: (res, filePath) => {
+          res.setHeader("X-Content-Type-Options", "nosniff");
+
+          // Aggressive caching for hashed assets
+          if (
+            /\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot|webp|avif)$/i.test(
+              filePath
+            )
+          ) {
+            res.setHeader("Cache-Control", "public, max-age=0, immutable");
+          }
+          // No cache for HTML
+          else if (filePath.endsWith(".html")) {
+            res.setHeader(
+              "Cache-Control",
+              "no-cache, no-store, must-revalidate"
+            );
+            res.setHeader("Pragma", "no-cache");
+          }
+        },
+      },
+    })
+  );
+}
+
+if (livechatdistExists) {
+  // Serve pre-compressed files (Brotli and Gzip)
+  app.use(
+    "/livechat",
+    expressStaticGzip(livechatPath, {
       enableBrotli: true,
       orderPreference: ["br", "gz"], // Prefer Brotli, fallback to Gzip
       index: false, // Don't auto-serve index.html
@@ -73,102 +115,24 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use("/", routeManager);
-app.use(express.static(publicDirectoryPath));
+app.use(express.static(botPath));
+app.use(express.static(livechatPath));
 
-// Catch-all route for chatbot host
-app.get("*", (req, res) => {
-  res.sendFile(path.join(publicDirectoryPath, "index.html"));
+app.get("/livechat", (req, res) => {
+  res.sendFile(path.join(livechatPath, "index.html"));
 });
+
+// // Catch-all route for chatbot host
+app.get("/chatbot", (req, res) => {
+  res.sendFile(path.join(botPath, "index.html"));
+});
+
+app.get("*", (req, res) => {
+  res.send("hello")
+})
 
 const { init } = require("./socket");
 init(io);
-
-// io.on("connection", (socket) => {
-//   console.log(`User connected: ${socket.id}`);
-
-//   activeSessions.set(socket.id, {
-//     connectedAt: new Date(),
-//     messageCount: 0,
-//   });
-
-//   socket.on("user-message", async (data) => {
-//     const { message, details, sender, source, userDetails, attachment } = data;
-//     console.log(
-//       `Message from ${sender}: ${
-//         message ? message : JSON.stringify(attachment)
-//       }`
-//     );
-
-//     const session = activeSessions.get(socket.id);
-//     if (session) {
-//       session.messageCount++;
-//     }
-
-//     socket.emit("bot-typing");
-
-//     try {
-//       const aiResponse = await generateAIResponse(
-//         message,
-//         details,
-//         sender,
-//         source,
-//         userDetails,
-//         attachment
-//       );
-
-//       socket.emit("bot-stop-typing");
-//       socket.emit("bot-message", aiResponse);
-//     } catch (error) {
-//       console.error("Error generating AI response:", error);
-//       socket.emit("bot-stop-typing");
-//       socket.emit("bot-message", {
-//         message: "I'm sorry, I encountered an error. Please try again.",
-//         messageId: Date.now().toString(),
-//       });
-//     }
-//   });
-
-//   socket.on("voice-message", async (data) => {
-//     const { audio, details, sender, source, filename, type } = data;
-//     console.log(`Voice message from ${sender} of ${filename}`);
-
-//     const session = activeSessions.get(socket.id);
-//     if (session) {
-//       session.messageCount++;
-//     }
-
-//     socket.emit("bot-typing");
-
-//     try {
-//       const voiceResponse = await generateVoiceResponse(
-//         audio,
-//         details,
-//         sender,
-//         source,
-//         filename,
-//         type
-//       );
-
-//       console.log(voiceResponse, "voice response after posting in dashboard");
-
-//       socket.emit("bot-stop-typing");
-//       socket.emit("voice-response", voiceResponse);
-//     } catch (error) {
-//       console.error("Error generating voice response:", error);
-//       socket.emit("bot-stop-typing");
-//       socket.emit("bot-message", {
-//         message:
-//           "I'm sorry, I couldn't process your voice message. Please try again.",
-//         messageId: Date.now().toString(),
-//       });
-//     }
-//   });
-
-//   socket.on("disconnect", () => {
-//     console.log(`User disconnected: ${socket.id}`);
-//     activeSessions.delete(socket.id);
-//   });
-// });
 
 const PORT = process.env.PORT || 3001;
 server.listen(PORT, () => {

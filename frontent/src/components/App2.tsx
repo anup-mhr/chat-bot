@@ -1,4 +1,4 @@
-import { ImagePlus, Mic, Send, SendHorizontal } from "lucide-react";
+import { ImagePlus, Mic, SendHorizontal } from "lucide-react";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
 import type { Socket } from "socket.io-client";
@@ -84,6 +84,7 @@ function App2() {
   const [livechatTransferRequest, setlivechatTransferRequest] =
     useState<TransferRequest | null>(null);
   const livechatRef = useRef(livechat);
+  const [showModules, setShowModules] = useState(false);
 
   const { visitorData } = useVisitor();
   const env = import.meta.env;
@@ -143,6 +144,7 @@ function App2() {
             data?.type ? data.type : "text",
             data?.data ? data.data : []
           );
+          setShowModules(true);
         } else {
           renderMessage(
             data?.custom
@@ -292,7 +294,7 @@ function App2() {
     renderMessage(inputValue, null, "user", "text");
     messageSend(inputValue, null);
     setInputValue("");
-    !livechat && setIsTyping(true);
+    !livechatRef.current && setIsTyping(true);
   };
 
   async function messageSend(message: string | null, attachment: Attachment) {
@@ -351,6 +353,7 @@ function App2() {
       ...(data.length > 0 ? { buttons: data } : {}),
     };
     setMessages((prev) => [...prev, userMessage]);
+    type !== "quick_reply" && showModules && setShowModules(false);
   }
 
   const startRecording = async () => {
@@ -438,7 +441,7 @@ function App2() {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const handleImageClick = () => {
-    if (!livechat) return;
+    if (!livechatRef.current) return;
     if (fileInputRef.current) {
       fileInputRef.current.click();
     }
@@ -561,6 +564,19 @@ function App2() {
         } else if (title === "No") {
           return;
         }
+      } else if (type === "quick_reply") {
+        socket.emit(
+          `user:message`,
+          {
+            text: dataPart,
+            payload: { title, payload },
+            type: "customer_rating",
+          },
+          visitorData.userDetails,
+          visitorData.details,
+          visitorData.visitorId
+        );
+        setShowModules(false);
       }
     } catch (err) {
       console.error("Failed to process button payload:", err, payload);
@@ -597,6 +613,8 @@ function App2() {
         messages={messages}
         isTyping={isTyping}
         messagesEndRef={messagesEndRef}
+        showModules={showModules}
+        handleButtonClick={handleButtonClick}
       />
 
       <FormDialog

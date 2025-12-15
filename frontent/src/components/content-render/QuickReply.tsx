@@ -11,18 +11,21 @@ interface QuickReplyProps {
       payload: string;
     }[];
   };
+  showModules: boolean;
+  handleButtonClick: (type: string, title: string, payload: string) => void;
 }
 
-const QuickReply = ({ data }: QuickReplyProps) => {
+const QuickReply = ({
+  data,
+  showModules,
+  handleButtonClick,
+}: QuickReplyProps) => {
   if (!data) return null;
 
-  const ButtonCkicked = async (title: string, payload: string) => {
-    console.log(title, payload, "consoling button clkicked quick reply");
-  };
   return (
     <div className="">
       <div className="message-content mb-3">
-        <p className="text-base sm:text-lg break-words">{data.content}</p>
+        <p className="text-base sm:text-lg wrap-break-words">{data.content}</p>
         <span className="message-time">
           {data.timestamp.toLocaleTimeString([], {
             hour: "2-digit",
@@ -31,13 +34,15 @@ const QuickReply = ({ data }: QuickReplyProps) => {
         </span>
       </div>
 
-      {data.buttons && data.buttons.length > 0 && (
+      {data.buttons && data.buttons.length > 0 && showModules && (
         <div className="flex flex-wrap gap-2 justify-center items-center">
           {data.buttons.map((item, key) => (
             <button
               key={key}
               className="bg-(--primary-color) cursor-pointer text-white rounded-xl px-4 py-2 text-sm sm:text-base hover:bg-(--secondary-color) transition-all duration-200"
-              onClick={() => ButtonCkicked(item.title, item.payload)}
+              onClick={() =>
+                handleButtonClick("quick_reply", item.title, item.payload)
+              }
             >
               {item.title}
             </button>

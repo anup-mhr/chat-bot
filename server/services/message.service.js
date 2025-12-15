@@ -311,7 +311,7 @@ async function postRate(query, agentid, senderid) {
     );
     let responseData = await response.json();
 
-    console.log("Response >>>", responseData);
+    return responseData;
   } catch (err) {
     console.log("ERROR IN POST RATE >>>", err);
   }

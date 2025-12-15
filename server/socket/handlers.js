@@ -2185,16 +2185,27 @@ class Handlers {
     // if (session) {
     //   session.messageCount++;
     // }
-    if (message.type === "customer_rating") {
-      console.log(JSON.stringify(message), "ratingmessage>>>>");
-      return postRate(
-        message.payload.payload,
-        message.payload.payload.split(":")[0].trim(),
-        message.sender
-      );
-    }
 
     this._io.to(sender).emit("bot:typing");
+    if (message?.type === "customer_rating") {
+      console.log(JSON.stringify(message), "ratingmessage>>>>");
+      const response = await postRate(
+        message.payload.payload,
+        message.payload.payload.split(":")[0].trim(),
+        sender
+      );
+      console.log("Response >>>", response);
+      response.success &&
+        this._io.to(sender).emit("message:received", {
+          result:
+            "Thank you for your Feedback. Is there anything else I can help you with?",
+          sender: sender,
+          "Language Required": "English",
+          "Tool Used?": false,
+        });
+      this._io.to(sender).emit("botStop:typing");
+      return;
+    }
 
     const senderUser = await client.hget(this._userRedisKey, sender);
     const receipent = senderUser?.engagedWith || "server";
