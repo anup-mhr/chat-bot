@@ -2,7 +2,6 @@ import { ImagePlus, Mic, SendHorizontal } from "lucide-react";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
 import type { Socket } from "socket.io-client";
-
 import { CallOverlay } from "./CallOverlay";
 import { FormDialog } from "./FormDialog";
 import { useVisitor } from "../context/org.context";
@@ -54,39 +53,42 @@ interface TransferRequest {
 function App2() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState("");
-  const [isConnected, setIsConnected] = useState(false);
-  const [isTyping, setIsTyping] = useState(false);
-  const socketRef = useRef<Socket | null>(null);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
   const [userDetails, setUserDetails] = useState<UserDetails>({
     name: "",
     phone: "",
     email: "",
     subject: "",
   });
-  const [isRecording, setIsRecording] = useState(false);
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(
     null
   );
-  // const [audioChunks, setAudioChunks] = useState<Blob[]>([]);
-  const [showCallOverlay, setShowCallOverlay] = useState(false);
-  const [showFormDialog, setShowFormDialog] = useState(false);
+  const [livechatTransferRequest, setlivechatTransferRequest] =
+    useState<TransferRequest | null>(null);
   const [pendingMessage, setPendingMessage] = useState<{
     content: string;
     type: "text" | "audio" | "image" | "file" | "video";
     audioUrl?: string;
   } | null>(null);
+
+  // const [audioChunks, setAudioChunks] = useState<Blob[]>([]);
+  const [isConnected, setIsConnected] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const [showCallOverlay, setShowCallOverlay] = useState(false);
+  const [showFormDialog, setShowFormDialog] = useState(false);
   const [firstMessage, setFirstMessage] = useState(true);
   const [isFormForCall, setIsFormForCall] = useState(false);
   const [formSubmit, setFormSubmit] = useState(false);
   const [livechat, setLivechat] = useState(false);
   const [showLivechatRequest, setShowLivechatRequest] = useState(false);
-  const [livechatTransferRequest, setlivechatTransferRequest] =
-    useState<TransferRequest | null>(null);
-  const livechatRef = useRef(livechat);
   const [showModules, setShowModules] = useState(false);
 
+  const livechatRef = useRef(livechat);
+  const socketRef = useRef<Socket | null>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
   const { visitorData } = useVisitor();
+  const socket = getSocket();
   const env = import.meta.env;
 
   const scrollToBottom = () => {
@@ -298,7 +300,6 @@ function App2() {
   };
 
   async function messageSend(message: string | null, attachment: Attachment) {
-    const socket = getSocket();
     if (!socket) return;
     console.log("Sending message:", {
       message,
@@ -411,7 +412,6 @@ function App2() {
       return;
     }
 
-    const socket = getSocket();
     if (!socket) return;
     socket.emit(
       "voice:message",
@@ -453,7 +453,6 @@ function App2() {
 
     const fileType = file.type;
 
-    const socket = getSocket();
     if (!socket) return;
     socket.emit(
       "voice:message",
@@ -513,7 +512,6 @@ function App2() {
         } else if (pendingMessage.type === "audio" && pendingMessage.audioUrl) {
           renderMessage(null, pendingMessage.audioUrl, "user", "audio");
           // For voice, emit the event directly
-          const socket = getSocket();
           if (socket) {
             socket.emit("voice-message", {
               audio: pendingMessage.audioUrl,
@@ -534,7 +532,6 @@ function App2() {
   };
 
   const handleButtonClick = (type: string, title: string, payload: string) => {
-    const socket = getSocket();
     if (!socket) return;
 
     // setLivechat(true);
@@ -640,9 +637,6 @@ function App2() {
       <FormPopup
         isOpen={showLivechatRequest}
         onClose={() => setShowLivechatRequest(false)}
-        organization={visitorData?.details?.org_id || ""}
-        branch={visitorData?.details?.branch_id || ""}
-        sender={visitorData?.visitorId || ""}
         data={livechatTransferRequest}
         handleButtonClick={handleButtonClick}
       />

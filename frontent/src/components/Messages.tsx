@@ -3,7 +3,7 @@ import { useVisitor } from "../context/org.context";
 import WelcomeMessage from "./content-render/WelcomeMessage";
 import Typing from "./Typing";
 import QuickReply from "./content-render/QuickReply";
-import GeneralReply from "./content-render/generalReply";
+import GeneralReply from "./content-render/GeneralReply";
 
 interface Message {
   id: string;

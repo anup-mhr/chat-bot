@@ -18,9 +18,6 @@ interface TransferRequest {
 interface FormPopupProps {
   isOpen: boolean;
   onClose: () => void;
-  organization: string;
-  branch: string;
-  sender: string;
   data: TransferRequest | null;
   handleButtonClick: (type: string, title: string, payload: string) => void;
 }
@@ -28,9 +25,6 @@ interface FormPopupProps {
 const FormPopup = ({
   isOpen,
   onClose,
-  organization,
-  branch,
-  sender,
   data,
   handleButtonClick,
 }: FormPopupProps) => {

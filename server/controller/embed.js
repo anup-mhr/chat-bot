@@ -82,7 +82,7 @@ exports.embedScripted = catchAsync(async function (req, res) {
         z-index: 9999;
       }
       .close-button:hover {
-        background: rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.2);
       }
 
       .call-button {
@@ -99,7 +99,7 @@ exports.embedScripted = catchAsync(async function (req, res) {
         z-index: 9999;
       }
       .call-button:hover {
-        background: rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.2);
       }
     \`;
     document.head.appendChild(style);
