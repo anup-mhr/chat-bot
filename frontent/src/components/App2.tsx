@@ -14,9 +14,9 @@ import FormPopup from "./FormPopup";
 interface Message {
   id: string;
   content: string;
-  sender: "user" | "bot";
+  sender: "user" | "bot" | "agentMessage";
   timestamp: Date;
-  type?: "text" | "audio";
+  type?: "text" | "audio" | "image" | "file" | "video" | "quick_reply";
   audioUrl?: string;
   buttons?: {
     title: string;
@@ -134,6 +134,15 @@ function App2() {
         if (data.type === "livechatIncomingRequest") {
           setlivechatTransferRequest(data);
           setShowLivechatRequest(true);
+        }
+        if (data.type === "quick_reply") {
+          renderMessage(
+            data?.title ? data.title : "Something went wrong",
+            null,
+            "bot",
+            data?.type ? data.type : "text",
+            data?.data ? data.data : []
+          );
         } else {
           renderMessage(
             data?.custom
@@ -145,10 +154,16 @@ function App2() {
               : data?.message
               ? data?.message
               : "Something went wrong",
-            data?.custom?.path ? data.custom.path : null,
-            "bot",
+            data?.custom?.path
+              ? data.custom.path
+              : data?.attachment?.payload
+              ? data.attachment.payload
+              : null,
+            data?.type === "agentMessage" ? "agentMessage" : "bot",
             data.custom?.type === "audio"
               ? "audio"
+              : data?.attachment?.type
+              ? data?.attachment?.type
               : data?.type
               ? data.type
               : "text"
@@ -322,8 +337,9 @@ function App2() {
   async function renderMessage(
     message: string | null,
     audio: string | null,
-    sender: "user" | "bot",
-    type: any
+    sender: "user" | "bot" | "agentMessage",
+    type: any,
+    data: { title: string; payload: string }[] = []
   ) {
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -332,6 +348,7 @@ function App2() {
       timestamp: new Date(),
       type: type,
       ...(audio ? { audioUrl: audio as string } : {}),
+      ...(data.length > 0 ? { buttons: data } : {}),
     };
     setMessages((prev) => [...prev, userMessage]);
   }

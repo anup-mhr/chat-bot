@@ -432,7 +432,9 @@ class Handlers {
         return otherAgentBranchIds.some((id) => agentBranchIds.includes(id));
       });
       const dataToSend = [...relevantAgents, ...relevantUsers];
-      console.log(`${agent.userId} Emitting to agent ${dataToSend}`);
+      console.log(
+        `${agent.userId} Emitting to agent ${JSON.stringify(dataToSend)}`
+      );
       this._io.to(agent.userId).emit("livechat:users", dataToSend);
     }
     this._io.to("User").emit("livechat:agents", agentsOnly);
@@ -1568,6 +1570,25 @@ class Handlers {
     // );
     console.log(agentId, "agentIdforrating>>>");
 
+    let bypassMsg = await bypassRasa(
+      this._socket,
+      "/customer_rating",
+      visitorId,
+      {
+        agentId,
+        livechat_end: true,
+        source: senderUser.source,
+      }
+    );
+    this._io
+      .to(visitorId)
+      .emit(
+        "message:received",
+        bypassMsg,
+        this.serverMetadata(visitorId),
+        this._user
+      );
+
     if (!broadcast) {
       return null;
     }
@@ -1629,10 +1650,6 @@ class Handlers {
   }
 
   async messageSent(message, metadata, llmfields) {
-    // if (message.type === "customer_rating") {
-    //   console.log(JSON.stringify(message), "ratingmessage>>>>");
-    //   return postRate(message.payload.payload, message.payload.payload.split(":")[0].trim(), message.sender);
-    // }
     console.log(message, "consoling message from message sent");
     let guided = message.guided || null;
     const sender = this._user;
@@ -2168,6 +2185,15 @@ class Handlers {
     // if (session) {
     //   session.messageCount++;
     // }
+    if (message.type === "customer_rating") {
+      console.log(JSON.stringify(message), "ratingmessage>>>>");
+      return postRate(
+        message.payload.payload,
+        message.payload.payload.split(":")[0].trim(),
+        message.sender
+      );
+    }
+
     this._io.to(sender).emit("bot:typing");
 
     const senderUser = await client.hget(this._userRedisKey, sender);

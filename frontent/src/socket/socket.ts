@@ -31,6 +31,23 @@ interface BotMessage {
     title: string;
     payload: string;
   }[];
+
+  agentId: string;
+  attachment?: {
+    type: string;
+    payload: string;
+    size: number;
+  };
+  isOfflineMessage: boolean;
+  targetCategory: string;
+  targetSource: string;
+
+  subtitle?: string;
+  title?: string;
+  data?: {
+    title: string;
+    payload: string;
+  }[];
 }
 
 interface VoiceResponse {

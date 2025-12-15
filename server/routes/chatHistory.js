@@ -5,11 +5,15 @@ const visitorController = require("../controller/visitorController");
 const messageController = require("../controller/messageController");
 const fileController = require("../controller/fileController");
 const catchAsync = require("../utils/catchAsync");
+const multer = require("multer");
+
+const upload = multer();
 
 router.post("/login", authController.login);
 router.get("/visitors", visitorController.getVisitors);
 router.get("/messages", messageController.getMessages);
 router.get("/whatsappFile/:mediaId", fileController.getWhatsappFile);
+router.post("/file", upload.single("file"), fileController.uploadFile);
 router.get("/file", fileController.getFile);
 router.get("/messageByMid", messageController.getMessageByMid);
 router.get("/visitors/count", visitorController.getVisitorCount);

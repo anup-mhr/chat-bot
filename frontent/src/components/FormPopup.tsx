@@ -50,7 +50,11 @@ const FormPopup = ({
 
         <div className="flex flex-col items-center text-center gap-6 py-6 justify-center h-full">
           <h3 className="text-lg font-semibold text-gray-900">
-            Live Chat Transfer Request
+            {data.type === "livechatIncomingRequest"
+              ? "Live Chat Transfer Request"
+              : data.type === "livechatEndRequest"
+              ? "Live Chat End"
+              : ""}
           </h3>
 
           <p className="text-gray-700 text-sm leading-relaxed whitespace-pre-wrap">

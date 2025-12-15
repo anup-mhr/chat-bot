@@ -172,31 +172,34 @@ let localrundata = {
       },
     ],
   },
-  loc_test:{
-      "type": "location",
-      "title": "",
-      "header": "Branch Location",
-      "img": "images/address.png",
-      "subtitle": "To find a nearby branch, please provide your current location or share your location with us.",
-      "button": {
-        "contents": [
-          {
-            "title": "Get Branches Near Me",
-            "type": "send_location",
-          },
-          {
-            "title": "Type Location",
-            "type": "type_location"
-          }
-        ]
-      }
+  loc_test: {
+    type: "location",
+    title: "",
+    header: "Branch Location",
+    img: "images/address.png",
+    subtitle:
+      "To find a nearby branch, please provide your current location or share your location with us.",
+    button: {
+      contents: [
+        {
+          title: "Get Branches Near Me",
+          type: "send_location",
+        },
+        {
+          title: "Type Location",
+          type: "type_location",
+        },
+      ],
     },
+  },
 
   menu: {
-    title: "Namaste, I am Prabhu Mahalaxmi Chatbot - Your Virtual Assistant. How may I help you?",
+    title:
+      "Namaste, I am Prabhu Mahalaxmi Chatbot - Your Virtual Assistant. How may I help you?",
     type: "hamburger",
     welcomeImage: "images/menu/logo-himalayan.png",
-    descriptionEnglish: "Namaste, I am Prabhu Mahalaxmi Chatbot - Your Virtual Assistant. How may I help you?",
+    descriptionEnglish:
+      "Namaste, I am Prabhu Mahalaxmi Chatbot - Your Virtual Assistant. How may I help you?",
     descriptionNepali:
       "नमस्ते, म प्रभु महालक्ष्मी च्याटबोट - तपाईको स्वचालित सहायक | म तपाईलाई कसरी सहयोग गर्न सक्छु ?",
     data: [
@@ -242,6 +245,36 @@ let localrundata = {
         icon: "images/menu/feedback.png",
       },
     ],
+  },
+
+  "/customer_rating": async (agentID) => {
+    return {
+      type: "quick_reply",
+      subtype: "customer_rating",
+      title: "How would you rate your overall experience with us today?",
+      data: [
+        {
+          title: "Excellent",
+          payload: `${agentID}:5`,
+        },
+        {
+          title: "Very Good",
+          payload: `${agentID}:4`,
+        },
+        {
+          title: "Good",
+          payload: `${agentID}:3`,
+        },
+        {
+          title: "Satisfied",
+          payload: `${agentID}:2`,
+        },
+        {
+          title: "Not Satisfied",
+          payload: `${agentID}:1`,
+        },
+      ],
+    };
   },
 
   viewPremiumDue: {
@@ -470,7 +503,8 @@ let localrundata = {
   //agency_downline
   agenc_downline: {
     type: "formMessageSection",
-    exitMSG: "Oops !! you quitted midway during requesting agent downline business.",
+    exitMSG:
+      "Oops !! you quitted midway during requesting agent downline business.",
     form: {
       elements: [
         {
@@ -480,7 +514,8 @@ let localrundata = {
           placeholder: "Enter Agent Code",
           utterances: [
             {
-              message: "Please authenticate yourself by answering some questions to see your agent downline.",
+              message:
+                "Please authenticate yourself by answering some questions to see your agent downline.",
             },
           ],
 
@@ -504,7 +539,8 @@ let localrundata = {
 
         {
           order: "text",
-          title: "Please enter your Date of Birth with format (YYYY-MM-DD) in AD.",
+          title:
+            "Please enter your Date of Birth with format (YYYY-MM-DD) in AD.",
           placeholder: "Please Enter birthdate",
           type: "date",
           label: "DateOfBirth",
@@ -530,10 +566,12 @@ let localrundata = {
     post: "rest/v1/agent/agentType",
   },
   menuTEST: {
-    title: "Namaste, I am Prabhu Mahalaxmi Chatbot - Your Virtual Assistant. How may I help you?",
+    title:
+      "Namaste, I am Prabhu Mahalaxmi Chatbot - Your Virtual Assistant. How may I help you?",
     type: "hamburger",
     welcomeImage: "images/menu/logo-himalayan.png",
-    descriptionEnglish: "Namaste, I am Prabhu Mahalaxmi Chatbot - Your Virtual Assistant. How may I help you?",
+    descriptionEnglish:
+      "Namaste, I am Prabhu Mahalaxmi Chatbot - Your Virtual Assistant. How may I help you?",
     descriptionNepali:
       "नमस्ते, म प्रभु महालक्ष्मी च्याटबोट - तपाईको स्वचालित सहायक | म तपाईलाई कसरी सहयोग गर्न सक्छु ?",
     data: [
@@ -602,7 +640,8 @@ let localrundata = {
           placeholder: "Enter Your Policy Number",
           utterances: [
             {
-              message: "To view your policy details, kindly provide the requested information.",
+              message:
+                "To view your policy details, kindly provide the requested information.",
             },
           ],
           validation: {
@@ -634,7 +673,8 @@ let localrundata = {
         },
         {
           order: "cancel",
-          title: " Please click Submit button to proceed further and Cancel button to quit",
+          title:
+            " Please click Submit button to proceed further and Cancel button to quit",
           type: "submitbutton",
           placeholder: "Enter your email",
           button: [
@@ -664,7 +704,8 @@ let localrundata = {
           placeholder: "Enter Your Policy Number",
           utterances: [
             {
-              message: "To view your policy details, kindly provide the requested information.",
+              message:
+                "To view your policy details, kindly provide the requested information.",
             },
           ],
           validation: {
@@ -700,7 +741,8 @@ let localrundata = {
         },
         {
           order: "cancel",
-          title: " Please click Submit button to proceed further and Cancel button to quit",
+          title:
+            " Please click Submit button to proceed further and Cancel button to quit",
           type: "submitbutton",
           placeholder: "Enter your email",
           button: [
@@ -744,7 +786,8 @@ let localrundata = {
           order: "text",
           utterances: [
             {
-              message: "May I know from which date business details do you want to see about in YYYY-MM-DD format? ",
+              message:
+                "May I know from which date business details do you want to see about in YYYY-MM-DD format? ",
             },
           ],
           title: "Please choose your date.",
@@ -756,7 +799,8 @@ let localrundata = {
           order: "text",
           utterances: [
             {
-              message: "May I know to which date business details do you want to see about in YYYY-MM-DD format?",
+              message:
+                "May I know to which date business details do you want to see about in YYYY-MM-DD format?",
             },
           ],
           title: "Please choose your date.",
@@ -797,7 +841,8 @@ let localrundata = {
           placeholder: "Enter Your Policy Number",
           utterances: [
             {
-              message: "To view your policy details, kindly provide the requested information.",
+              message:
+                "To view your policy details, kindly provide the requested information.",
             },
           ],
           validation: {
@@ -832,7 +877,8 @@ let localrundata = {
         },
         {
           order: "cancel",
-          title: " Please click Submit button to proceed further and Cancel button to quit",
+          title:
+            " Please click Submit button to proceed further and Cancel button to quit",
           type: "submitbutton",
           placeholder: "Enter your email",
           button: [
@@ -861,7 +907,8 @@ let localrundata = {
           order: "text",
           utterances: [
             {
-              message: "To view your premium details, kindly provide the requested information.",
+              message:
+                "To view your premium details, kindly provide the requested information.",
             },
           ],
           title: "Please enter your Policy number.",
@@ -890,7 +937,8 @@ let localrundata = {
           order: "text",
           utterances: [
             {
-              message: "To view your premium details, kindly provide the requested information.",
+              message:
+                "To view your premium details, kindly provide the requested information.",
             },
           ],
           title: "Please enter your Date of Birth with format YYYY in AD.",
@@ -933,7 +981,8 @@ let localrundata = {
           order: "text",
           utterances: [
             {
-              message: "Please provide following details to check your personal details.",
+              message:
+                "Please provide following details to check your personal details.",
             },
           ],
           title: "Enter your Agent Code ?",
@@ -1033,8 +1082,10 @@ let localrundata = {
     title: "Hello world",
     type: "hamburger",
     welcomeImage: "images/menu/logo-himalayan.png",
-    descriptionEnglish: "Namaste, I am Your Virtual Assistant. How may I help you?",
-    descriptionNepali: "नमस्ते, म (हिमालएन लाईफ च्याटबोट) तपाईको स्वचालित सहायक | म तपाईलाई कसरी सहयोग गर्न सक्छु |",
+    descriptionEnglish:
+      "Namaste, I am Your Virtual Assistant. How may I help you?",
+    descriptionNepali:
+      "नमस्ते, म (हिमालएन लाईफ च्याटबोट) तपाईको स्वचालित सहायक | म तपाईलाई कसरी सहयोग गर्न सक्छु |",
     data: [
       {
         title: "Products",
@@ -1113,7 +1164,8 @@ let localrundata = {
     previousUtter: "back",
     data: [
       {
-        title: "Himalayan Barshik Nagad Firta Jeevan Beema Yojana (Annual Cash Back Policy)",
+        title:
+          "Himalayan Barshik Nagad Firta Jeevan Beema Yojana (Annual Cash Back Policy)",
         subtitle:
           "This policy is an anticipated endowment policy which gives money back every year after one year till maturity at the rate of 4% of the sum assured.",
         img: "images/menu/products/nagad.png",
@@ -1127,8 +1179,10 @@ let localrundata = {
                 payload: "I am Interested",
               },
               Details: {
-                interest: "Himalayan Barshik Nagad Firta Jeevan Beema Yojana (Annual Cash Back Policy)",
-                title: "Details of Himalayan Barshik Nagad Firta Jeevan Beema Yojana (Annual Cash Back Policy)",
+                interest:
+                  "Himalayan Barshik Nagad Firta Jeevan Beema Yojana (Annual Cash Back Policy)",
+                title:
+                  "Details of Himalayan Barshik Nagad Firta Jeevan Beema Yojana (Annual Cash Back Policy)",
                 subtitle: "Key Features",
                 paragraph:
                   "This policy is an anticipated endowment policy which gives money back every year after one year till maturity at the rate of 4% of the sum assured. This innovative product was first introduced by Himalayan Life Insurance LTD in considerations of the policy holders who need money every year.",
@@ -1518,7 +1572,8 @@ let localrundata = {
       },
       {
         title: "HImalayanLife Dhan Sagar",
-        subtitle: "You can find the key features of this plan in view details section",
+        subtitle:
+          "You can find the key features of this plan in view details section",
         img: "images/menu/products/dhansagar.png",
         button: {
           contents: [
@@ -2179,7 +2234,8 @@ Sum Assured: 3,00,000 /-  & Above   Rebate Rs. 2/-`,
     previousUtter: "back",
     data: [
       {
-        title: "Himalayan Surakshit Bhavisya Jeevan Beema Yojana ( Pension Plan)",
+        title:
+          "Himalayan Surakshit Bhavisya Jeevan Beema Yojana ( Pension Plan)",
         subtitle:
           "This policy  provides combine benefit of endowment policy, whole life and annual pension after premium paying term.",
         img: "images/menu/products/bhawishya.png",
@@ -2193,8 +2249,10 @@ Sum Assured: 3,00,000 /-  & Above   Rebate Rs. 2/-`,
                 payload: "I am Interested",
               },
               Details: {
-                interest: "Himalayan Surakshit Bhavisya Jeevan Beema Yojana ( Pension Plan)",
-                title: "Himalayan Surakshit Bhavisya Jeevan Beema Yojana ( Pension Plan)",
+                interest:
+                  "Himalayan Surakshit Bhavisya Jeevan Beema Yojana ( Pension Plan)",
+                title:
+                  "Himalayan Surakshit Bhavisya Jeevan Beema Yojana ( Pension Plan)",
                 subtitle: "Key Features",
                 paragraph:
                   "This policy  provides combine benefit of endowment policy, whole life and annual pension after premium paying term.",
@@ -3019,7 +3077,8 @@ Sum Assured: 3,00,000 /-  & Above   Rebate Rs. 2/-`,
         {
           utterances: [
             {
-              message: "Please provide following details to view your lapsed policy.",
+              message:
+                "Please provide following details to view your lapsed policy.",
             },
           ],
           order: "number",
@@ -3084,7 +3143,8 @@ Sum Assured: 3,00,000 /-  & Above   Rebate Rs. 2/-`,
         {
           utterances: [
             {
-              message: "To check your premium paid history please provide your details.",
+              message:
+                "To check your premium paid history please provide your details.",
             },
           ],
           order: "number",
@@ -3172,7 +3232,8 @@ Sum Assured: 3,00,000 /-  & Above   Rebate Rs. 2/-`,
         {
           utterances: [
             {
-              message: "Please provide following details to update your nominee.",
+              message:
+                "Please provide following details to update your nominee.",
             },
           ],
           order: "number",
@@ -3237,7 +3298,8 @@ Sum Assured: 3,00,000 /-  & Above   Rebate Rs. 2/-`,
         {
           utterances: [
             {
-              message: "Please provide following details to update your pay mode options.",
+              message:
+                "Please provide following details to update your pay mode options.",
             },
           ],
           order: "number",
@@ -3313,7 +3375,8 @@ Sum Assured: 3,00,000 /-  & Above   Rebate Rs. 2/-`,
         {
           utterances: [
             {
-              message: "Please provide following details to update your mobilenumber.",
+              message:
+                "Please provide following details to update your mobilenumber.",
             },
           ],
           order: "number",
@@ -3390,7 +3453,8 @@ Sum Assured: 3,00,000 /-  & Above   Rebate Rs. 2/-`,
         {
           utterances: [
             {
-              message: "Please provide following details to update your occupation.",
+              message:
+                "Please provide following details to update your occupation.",
             },
           ],
           order: "number",
@@ -3531,7 +3595,9 @@ Sum Assured: 3,00,000 /-  & Above   Rebate Rs. 2/-`,
     title: [
       "Amount of premium to be paid depends on various factors such as age of insurer and total life coverage of the plan. In case of insurer age is higher or chooses longer life coverage plan, sometime the total premium paid results higher than the sum assured.",
       {
-        title: ["To know more about premium to be paid please click the button below."],
+        title: [
+          "To know more about premium to be paid please click the button below.",
+        ],
       },
     ],
     button: {
@@ -3546,7 +3612,8 @@ Sum Assured: 3,00,000 /-  & Above   Rebate Rs. 2/-`,
   // ---------------------
   branch: {
     type: "quick_reply",
-    title: "Dear customer, please click the buttons below to view all our branch locations:",
+    title:
+      "Dear customer, please click the buttons below to view all our branch locations:",
     data: [
       {
         title: "Branch Loaction",
@@ -3617,7 +3684,8 @@ Sum Assured: 3,00,000 /-  & Above   Rebate Rs. 2/-`,
         payload: "",
       },
       {
-        subtitle: "● Formal training for a period of 19 hours provided by the Himalayan Life",
+        subtitle:
+          "● Formal training for a period of 19 hours provided by the Himalayan Life",
         payload: "",
       },
       {
@@ -3659,7 +3727,8 @@ Sum Assured: 3,00,000 /-  & Above   Rebate Rs. 2/-`,
         payload: "",
       },
       {
-        subtitle: "● Fill the information by clicking the agent payment section.",
+        subtitle:
+          "● Fill the information by clicking the agent payment section.",
         payload: "",
       },
     ],
@@ -3688,7 +3757,8 @@ Sum Assured: 3,00,000 /-  & Above   Rebate Rs. 2/-`,
         {
           utterances: [
             {
-              message: "Please provide following details to update your PAN number.",
+              message:
+                "Please provide following details to update your PAN number.",
             },
           ],
           order: "number",
@@ -3764,7 +3834,8 @@ Sum Assured: 3,00,000 /-  & Above   Rebate Rs. 2/-`,
         {
           utterances: [
             {
-              message: "Please provide following details to update your Account number.",
+              message:
+                "Please provide following details to update your Account number.",
             },
           ],
           order: "number",
@@ -3926,7 +3997,8 @@ Sum Assured: 3,00,000 /-  & Above   Rebate Rs. 2/-`,
         payload: "",
       },
       {
-        subtitle: "● Claim related notarized document received from the claimant",
+        subtitle:
+          "● Claim related notarized document received from the claimant",
         payload: "",
       },
       {
@@ -3942,7 +4014,8 @@ Sum Assured: 3,00,000 /-  & Above   Rebate Rs. 2/-`,
         payload: "",
       },
       {
-        subtitle: "● Signed and stamped discharge voucher received from the claimant",
+        subtitle:
+          "● Signed and stamped discharge voucher received from the claimant",
         payload: "",
       },
       {
@@ -3982,7 +4055,8 @@ Sum Assured: 3,00,000 /-  & Above   Rebate Rs. 2/-`,
         payload: "",
       },
       {
-        subtitle: "● Claim related notarized document received from the claimant",
+        subtitle:
+          "● Claim related notarized document received from the claimant",
         payload: "",
       },
       {
@@ -3994,7 +4068,8 @@ Sum Assured: 3,00,000 /-  & Above   Rebate Rs. 2/-`,
         payload: "",
       },
       {
-        subtitle: "● Signed and stamped discharge voucher received from the claimant",
+        subtitle:
+          "● Signed and stamped discharge voucher received from the claimant",
         payload: "",
       },
       {
@@ -4027,7 +4102,8 @@ Sum Assured: 3,00,000 /-  & Above   Rebate Rs. 2/-`,
         subtitle: "Discharge voucher sent to the claimant",
       },
       {
-        subtitle: "Signed and stamped discharge voucher received from the claimant",
+        subtitle:
+          "Signed and stamped discharge voucher received from the claimant",
       },
       {
         subtitle: "Claim amount paid/denied letter sent to the claimant",
@@ -4207,7 +4283,8 @@ Sum Assured: 3,00,000 /-  & Above   Rebate Rs. 2/-`,
   },
 
   contact_claim_department: {
-    title: "Please contact to claim department through email : claim@himalayanlife.com.np",
+    title:
+      "Please contact to claim department through email : claim@himalayanlife.com.np",
     type: "quick_reply",
     data: [],
   },

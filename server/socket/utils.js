@@ -166,13 +166,15 @@ const saveSessionInDashboard = async (data) => {
   // console.log(url, {data}, (await response.json()))
 };
 
-const bypassRasa = function (socket, message, userID) {
+const bypassRasa = async function (socket, message, userID, metadata) {
   let emitted = true;
 
   if (message === "Get Started") {
     socket.emit("message:received", localData.menu);
   } else if (message === "test") {
     socket.emit("message:received", localData.loc_test);
+  } else if (message === "/customer_rating") {
+    return await localData["/customer_rating"](metadata.agentId);
   }
   // else if (message === "test") {
   //   socket.emit("message:received", localData.viewPremiumDue);
