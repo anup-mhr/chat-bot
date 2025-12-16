@@ -76,8 +76,6 @@ class Handlers {
       clearTimeout(this._removeDataTimeout);
     }
     this._removeDataTimeout = handledSetTimeout(() => {
-      // client.hdel(this._userRedisKey, this._user);
-      console.log("I am inside set Remove Data Timeout");
       this._socket.disconnect();
     }, seconds * 1000);
   }
@@ -132,7 +130,6 @@ class Handlers {
           },
         ],
       };
-      console.log("I am inside last of disconnect handler 1");
       return saveSessionInDashboard([agentSession]);
     }
 
@@ -203,7 +200,6 @@ class Handlers {
         runningAgent = eventData.data;
       }
     }
-    console.log("I am inside last of disconnect handler 2");
     // await client.hset(this._sessionRedisKey, this._user, sessionData)
     return saveSessionInDashboard(
       sessions.reverse().map((session) => ({
@@ -299,6 +295,10 @@ class Handlers {
       data,
       ["navigationHistory"]
     );
+    console.log(
+      "user join in user set data",
+      await client.hget(this._userRedisKey, this._user)
+    );
     await this.userBroadcast();
   }
 
@@ -350,18 +350,21 @@ class Handlers {
       this._socket.join("all");
       return callback(true);
     }
+    console.log(role, "user joind details from redis", user);
     if (role === "User") {
       createVisitor(userId, llmFields, source);
     }
 
     // const data = await saveUserInDashboard(this._user, this._source, botUserData, llmFields);
-
     let data = await client.hget(this._userRedisKey, this._user);
+
     let jsondata = {
-      name: data?.name || "",
-      email: data?.email || "",
-      mobile: data?.mobile || "",
+      name: data.name || "",
+      email: data.email || "",
+      mobile: data.mobile || "",
     };
+
+    console.log(data, "consoling profile details when user join>>>", jsondata);
 
     if (source === "fb" || source === "instagram") {
       callback(true);
@@ -380,12 +383,16 @@ class Handlers {
       source: this._source,
       joined: true,
       connected: true,
-      ...jsondata,
-      UserConnectedDetails: botUserData || {
-        org_id: llmFields?.org_id,
-        branch_id: llmFields?.branch_id,
-        region_id: llmFields?.region_id,
-      },
+      // ...jsondata,
+      ...(profileDetails?.UserConnectedDetails
+        ? {}
+        : {
+            UserConnectedDetails: botUserData || {
+              org_id: llmFields?.org_id,
+              branch_id: llmFields?.branch_id,
+              region_id: llmFields?.region_id,
+            },
+          }),
     });
     await this.userSetData({ ...jsondata.clientDetails, ...jsondata });
     await this.userSetSession(
@@ -432,9 +439,9 @@ class Handlers {
         return otherAgentBranchIds.some((id) => agentBranchIds.includes(id));
       });
       const dataToSend = [...relevantAgents, ...relevantUsers];
-      console.log(
-        `${agent.userId} Emitting to agent ${JSON.stringify(dataToSend)}`
-      );
+      // console.log(
+      //   `${agent.userId} Emitting to agent ${JSON.stringify(dataToSend)}`
+      // );
       this._io.to(agent.userId).emit("livechat:users", dataToSend);
     }
     this._io.to("User").emit("livechat:agents", agentsOnly);
@@ -873,11 +880,6 @@ class Handlers {
 
       const expiredRequestMessageOpposite =
         await messages.expiredRequestOpposite(userData.role, this._user);
-      console.log("inexpire>>>>", {
-        msg: expiredRequestMessageOpposite.text,
-        user: requestId,
-        usred: this._user,
-      });
 
       this._io
         .to(this._user)
@@ -1014,9 +1016,6 @@ class Handlers {
       this.setRemoveDataTimeout();
     }
     const accepted = await client.hget(this._userRedisKey, acceptId);
-
-    console.log(acceptId, acceptor, "or><><accept<><>ed", accepted);
-
     acceptId = acceptId || acceptor.requester;
 
     if (
@@ -1105,7 +1104,6 @@ class Handlers {
 
     if (rejector.role === "Agent") {
       const rejectedUser = await client.hget(this._userRedisKey, rejectId);
-      console.log(rejectedUser, "rejectedUser>>>", rejectId);
       reject = {
         Agent_name: this._user || rejector.name,
         Visitor_name: rejectedUser.name,
@@ -1199,8 +1197,6 @@ class Handlers {
   ) {
     const agentUser = await client.hget(this._userRedisKey, agentId);
     const visitorUser = await client.hget(this._userRedisKey, visitorId);
-    console.log(agentUser, "I am triggered livechatStart", visitorUser);
-
     if (agentUser.status !== "active") {
       this._io
         .to(visitorId)
@@ -1279,7 +1275,6 @@ class Handlers {
         this._userRedisKey
       );
     }, 100);
-    console.log("visitorID:::>>>>>started", { visitorId, agentId });
     this._io.to(visitorId).emit("livechat:started");
 
     this._io
@@ -1349,15 +1344,6 @@ class Handlers {
       );
       return;
     }
-
-    console.log(
-      agentData,
-      "consoling transfered data>>>",
-      visitorData,
-      transferId,
-      agentId,
-      transferedByID
-    );
 
     const visitorDataBranchId = visitorData?.UserConnectedDetails?.branch_id;
 
@@ -1533,7 +1519,6 @@ class Handlers {
       );
     //for storing agent rating from rasa
     const senderUser = await client.hget(this._userRedisKey, visitorId);
-    console.log(ended, "visitorId>>>endd", senderUser);
     let responseMessage = await postMessage(
       message.text,
       undefined,
@@ -1568,8 +1553,6 @@ class Handlers {
     //   visitorId,
     //   responseMessage
     // );
-    console.log(agentId, "agentIdforrating>>>");
-
     let bypassMsg = await bypassRasa(
       this._socket,
       "/customer_rating",
@@ -1650,7 +1633,6 @@ class Handlers {
   }
 
   async messageSent(message, metadata, llmfields) {
-    console.log(message, "consoling message from message sent");
     let guided = message.guided || null;
     const sender = this._user;
     const source = this._source;
@@ -1675,12 +1657,7 @@ class Handlers {
       senderUser?.name ||
       metadata?.name ||
       `${senderUser?.first_name || ""} ${senderUser?.last_name || ""}`;
-    console.log(
-      sender,
-      senderUser,
-      senderName,
-      "Consoling sender details in messagesent>>>"
-    );
+
     if (!senderUser.name && senderName?.trim()) {
       this.userSetData({ name: senderName });
     }
@@ -1777,23 +1754,6 @@ class Handlers {
       typeof this.handleSocketPayload === "function" &&
       !payload?.latitude &&
       (await this.handleSocketPayload(payload));
-    const accepted = await client.hget(this._userRedisKey, sender);
-
-    console.log(
-      message,
-      "inmessagesent>>>>>",
-      metadata,
-      "llmfields",
-      llmfields,
-      "lasmessagetype",
-      this._user,
-      receipent,
-      sender,
-      "accepted",
-      accepted,
-      attachment,
-      this._source
-    );
 
     if (isSocketEvent) {
       const visitorId = extractVisitorId(message.payload);
@@ -1928,7 +1888,6 @@ class Handlers {
       });
       await client.releaseLock(lockKey);
       if (!receivingUser) {
-        console.log("sending offline message>>>");
         return sendOfflineMessage(message, metadata, message.targetSource);
       }
       return this._socket
@@ -2142,7 +2101,6 @@ class Handlers {
   }
 
   async callRasa(payload, metadata, text, sender, responseMessage) {
-    console.log(payload, "checkdatainhandlerss>>>", metadata);
     let source = this._source;
     let isActive = await this.checkIsAgentActiveOrNot();
     const rasaResponse = await RasaAPI.getIntentRequest(
@@ -2188,13 +2146,11 @@ class Handlers {
 
     this._io.to(sender).emit("bot:typing");
     if (message?.type === "customer_rating") {
-      console.log(JSON.stringify(message), "ratingmessage>>>>");
       const response = await postRate(
         message.payload.payload,
         message.payload.payload.split(":")[0].trim(),
         sender
       );
-      console.log("Response >>>", response);
       response.success &&
         this._io.to(sender).emit("message:received", {
           result:

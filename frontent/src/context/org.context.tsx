@@ -29,31 +29,23 @@ interface OrganizationDetails {
 }
 
 interface UserLead {
-  _id: string;
-  branch: string;
-  city: string | null;
-  confirmation_sent_date: string | null;
-  created_date: string;
-  dob: string | null;
+  visitorId: string;
+  name: string;
   email: string;
-  event_id: string | null;
-  first_name: string;
-  gender: string | null;
-  interested_in: string;
-  last_name: string;
-  note: string;
-  organization_id: string;
+  mobile: string;
+  role: string;
+  source: string;
+  category: string;
+  joined: boolean;
+  connected: boolean;
+  UserConnectedDetails: {
+    org_id: string;
+    branch_id: string;
+    region_id: string | null;
+  };
+  navigationHistory: Record<string, unknown>;
+  sessionHistory: Record<string, string>;
   phone: string;
-  referred_by: string | null;
-  sender: string;
-  source_group: string;
-  state: string | null;
-  type: string;
-  updated_date: string;
-  use_automation: boolean;
-  venue_id: string | null;
-  zip: string | null;
-  __v: number;
 }
 
 interface VisitorContextType {

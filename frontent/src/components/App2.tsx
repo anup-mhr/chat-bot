@@ -112,7 +112,7 @@ function App2() {
           "web",
           null,
           visitorData.details,
-          null,
+          visitorData.userDetails,
           async (value: any, userData: any) => {
             if (!value) {
               return null;
@@ -207,7 +207,7 @@ function App2() {
     return () => {
       disconnectSocket();
     };
-  }, [visitorData?.visitorId]);
+  }, [visitorData]);
 
   useEffect(() => {
     livechatRef.current = livechat;
@@ -215,15 +215,10 @@ function App2() {
 
   useEffect(() => {
     console.log(visitorData, "Visitor Details from context");
-    if (
-      visitorData?.userDetails?.first_name &&
-      visitorData?.userDetails?.email
-    ) {
+    if (visitorData?.userDetails?.name && visitorData?.userDetails?.email) {
       setUserDetails((prev) => ({
         ...prev,
-        name: `${visitorData?.userDetails?.first_name} ${
-          visitorData?.userDetails?.last_name || ""
-        }`,
+        name: `${visitorData?.userDetails?.name || ""}`,
         email: visitorData?.userDetails?.email || "",
         phone: visitorData?.userDetails?.phone || "",
       }));

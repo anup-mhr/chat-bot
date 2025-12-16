@@ -1,9 +1,11 @@
 const { newPostToServer, getFromServer } = require("../server.services");
 const AppError = require("../utils/appError");
 const catchAsync = require("../utils/catchAsync");
+const { client } = require("../utils/redis");
 const { successResponse } = require("../utils/successResponse");
 
 require("dotenv").config();
+const USER_REDIS_KEY = `${process.env.ORGANIZATION_ID}:users`;
 exports.userLeadsController = catchAsync(async function (req, res, next) {
   const url = `${process.env.CONTROL_PANEL_PROTOCOL}://${process.env.CONTROL_PANEL_URL}/api/leads?branchId=${req.body.llmfields.branch_id}`;
   const panelKey = process.env.CONTROL_PANEL_KEY;
@@ -53,20 +55,32 @@ exports.getUserLeads = catchAsync(async function (req, res, next) {
     apikey: panelKey,
   };
 
-  let response = await getFromServer(url, headers);
-  let data = await response.json();
+  let data;
+  let userDetails;
+  userDetails = await client.hget(USER_REDIS_KEY, req.query.sender_id);
+  if (!userDetails?.name && !userDetails?.email) {
+    let response = await getFromServer(url, headers);
+    data = await response.json();
 
-  if (!data || data.success === false) {
-    return res.json({
-      success: false,
-      message: data?.message || "Something went wrong",
-      status: 400,
-    });
+    if (!data || data.success === false) {
+      return res.json({
+        success: false,
+        message: data?.message || "Something went wrong",
+        status: 400,
+      });
+    } else {
+      await client.hset(USER_REDIS_KEY, req.query.sender_id, {
+        name: data.data.first_name,
+        email: data.data.email,
+        mobile: data.data.phone,
+      });
+      userDetails = await client.hget(USER_REDIS_KEY, req.query.sender_id);
+    }
   }
 
   return successResponse(
     res,
-    data.data,
+    userDetails,
     "Your Leads has been obtained successfully.",
     "success",
     200
