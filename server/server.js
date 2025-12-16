@@ -128,8 +128,8 @@ app.get("/chatbot", (req, res) => {
 });
 
 app.get("*", (req, res) => {
-  res.send("hello")
-})
+  res.send("hello");
+});
 
 const { init } = require("./socket");
 init(io);

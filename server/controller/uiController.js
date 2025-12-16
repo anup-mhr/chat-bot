@@ -39,14 +39,15 @@ exports.getOrgUi = catchAsync(async function (req, res) {
   if (result.success === false || !result.data) {
     org_data = {
       Bot_Logo: null,
-      Welcome_Message: `Hello, I am your virtual assistant. What can I help you with today?`,
-      organization_name: "Keep me",
+      Welcome_Message: `<p>Hi, I'm Paula, an AI Agent from Palm Mind! How may I assist you today?</p>`,
+      name: "Paula",
+      organization_name: "👋 Palm Mind",
       chatbot_name: "Bot",
       header_Name: "Bot",
       org_id: organization,
       branch_id: branch === "all" ? null : branch,
       region_id: region,
-      primaryColor: "#5CCC9D",
+      primaryColor: "#1c77bb",
       secondaryColor: "#376b7e",
     };
   } else {
@@ -77,6 +78,7 @@ exports.getOrgUi = catchAsync(async function (req, res) {
         "",
       primaryColor: result.data.primaryColor || "#5CCC9D",
       secondaryColor: result.data.secondaryColor || "#376b7e",
+      name: result.data.name || "Paula",
       // prompt:result.data.prompt || null
     };
 

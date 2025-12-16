@@ -7,6 +7,7 @@ import GeneralReply from "./content-render/GeneralReply";
 
 interface Message {
   id: string;
+  botName: string | null;
   content: string;
   sender: "user" | "bot" | "agentMessage";
   timestamp: Date;

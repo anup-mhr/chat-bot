@@ -86,17 +86,17 @@ exports.embedScripted = catchAsync(async function (req, res) {
       }
 
       .call-button {
-        background: none;
-        border: none;
-        color: white;
-        cursor: pointer;
-        padding: 4px;
-        border-radius: 4px;
-        transition: background-color 0.2s;
-        position: absolute;
-        right: 50px;
-        top: 22px;
-        z-index: 9999;
+      background: none;
+      border: none;
+      color: white;
+      cursor: pointer;
+      padding: 7px;
+      border-radius: 4px;
+      transition: background-color 0.2s;
+      position: absolute;
+      right: 46px;
+      top: 20px;
+      z-index: 9999;
       }
       .call-button:hover {
         background: rgba(255, 255, 255, 0.2);

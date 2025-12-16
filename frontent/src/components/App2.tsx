@@ -12,6 +12,7 @@ import FormPopup from "./FormPopup";
 
 interface Message {
   id: string;
+  botName: string | null;
   content: string;
   sender: "user" | "bot" | "agentMessage";
   timestamp: Date;
@@ -86,6 +87,7 @@ function App2() {
   const livechatRef = useRef(livechat);
   const socketRef = useRef<Socket | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const livechatAgentName = useRef("");
 
   const { visitorData } = useVisitor();
   const socket = getSocket();
@@ -198,7 +200,10 @@ function App2() {
           type: type as string,
         });
       },
-      () => setLivechat(true),
+      (data) => {
+        setLivechat(true);
+        livechatAgentName.current = data;
+      },
       () => setLivechat(false)
     );
 
@@ -295,29 +300,30 @@ function App2() {
   };
 
   async function messageSend(message: string | null, attachment: Attachment) {
+    const socket = getSocket();
     if (!socket) return;
-    console.log("Sending message:", {
-      message,
-      attachment,
-    });
+    console.log(
+      "Sending message:",
+      {
+        message,
+        attachment,
+      },
+      livechatRef.current
+    );
     if (!livechatRef.current) {
       if (message?.startsWith("livechat:request:")) {
         socket.emit("livechat:request", message.split("livechat:request:")[1]);
         return;
       }
-      try {
-        socket.emit(
-          "user:message",
-          message || null,
-          userDetails,
-          visitorData ? visitorData.details : null,
-          visitorData ? visitorData.visitorId : null,
-          "web",
-          attachment || null
-        );
-      } catch (err) {
-        console.log("error while sending user message", err);
-      }
+      socket.emit(
+        "user:message",
+        message,
+        userDetails,
+        visitorData ? visitorData.details : null,
+        visitorData ? visitorData.visitorId : null,
+        "web",
+        attachment
+      );
     } else {
       socket.emit(
         "message:sent",
@@ -339,8 +345,12 @@ function App2() {
     type: any,
     data: { title: string; payload: string }[] = []
   ) {
+    console.log(livechatAgentName, "consoling agent name in render message");
     const userMessage: Message = {
       id: Date.now().toString(),
+      botName: livechatRef.current
+        ? livechatAgentName.current || "Agent"
+        : visitorData.details?.name || null,
       content: message ? message : type === "audio" ? "Voice message" : "",
       sender: sender,
       timestamp: new Date(),

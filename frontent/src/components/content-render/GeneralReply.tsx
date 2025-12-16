@@ -1,6 +1,7 @@
 interface QuickReplyProps {
   data: {
     id: string;
+    botName: string | null;
     content: string;
     sender: "user" | "bot" | "agentMessage";
     timestamp: Date;
@@ -16,6 +17,9 @@ interface QuickReplyProps {
 const GeneralReply = ({ data }: QuickReplyProps) => {
   return (
     <div className="message-content">
+      {(data.sender === "bot" || data.sender === "agentMessage") && (
+        <p className="text-(--primary-color) font-bold">{data.botName}</p>
+      )}
       {data.type === "audio" && data.audioUrl ? (
         <div>
           {data.sender === "agentMessage" ? (

@@ -1,6 +1,7 @@
 interface QuickReplyProps {
   data: {
     id: string;
+    botName: string | null;
     content: string;
     sender: "user" | "bot" | "agentMessage";
     timestamp: Date;
@@ -25,6 +26,9 @@ const QuickReply = ({
   return (
     <div className="">
       <div className="message-content mb-3">
+        {(data.sender === "bot" || data.sender === "agentMessage") && (
+          <p className="text-(--primary-color) font-bold">{data.botName}</p>
+        )}
         <p className="text-base sm:text-lg wrap-break-words">{data.content}</p>
         <span className="message-time">
           {data.timestamp.toLocaleTimeString([], {

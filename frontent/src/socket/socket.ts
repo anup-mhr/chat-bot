@@ -63,7 +63,7 @@ export const connectSocket = (
   onBotTyping: () => void,
   onBotStopTyping: () => void,
   onVoiceResponse: (data: VoiceResponse) => void,
-  onLivechatStarted: () => void,
+  onLivechatStarted: (data: string) => void,
   onLivechatEnded: () => void
 ): Socket => {
   if (!socket) {

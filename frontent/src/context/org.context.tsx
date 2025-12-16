@@ -26,6 +26,7 @@ interface OrganizationDetails {
   org_id: string;
   branch_id: string;
   region_id: string;
+  name: string;
 }
 
 interface UserLead {
@@ -201,8 +202,6 @@ export function VisitorProvider({ children }: { children: ReactNode }) {
 
       const result = await response.json();
 
-      console.log(result, "result of response whole org data>>>");
-
       return {
         header_Logo: result.header_Logo,
         header_Name: result.header_Name,
@@ -215,6 +214,7 @@ export function VisitorProvider({ children }: { children: ReactNode }) {
         org_id: result.org_id,
         branch_id: result.branch_id,
         region_id: result.region_id,
+        name: result.name,
       };
     } catch (error) {
       console.error("Error fetching mascot data:", error);

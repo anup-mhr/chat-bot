@@ -1266,7 +1266,7 @@ class Handlers {
         this._userRedisKey
       );
     }, 100);
-    this._io.to(visitorId).emit("livechat:started");
+    this._io.to(visitorId).emit("livechat:started", agentUser.name);
 
     this._io
       .to(agentId)
@@ -2121,7 +2121,6 @@ class Handlers {
     // if (session) {
     //   session.messageCount++;
     // }
-
     const senderUser = await client.hget(this._userRedisKey, sender);
     const receipent = senderUser?.engagedWith || "server";
 
