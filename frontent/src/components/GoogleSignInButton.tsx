@@ -1,4 +1,11 @@
 import { useEffect } from "react";
+import { jwtDecode } from "jwt-decode";
+
+interface GoogleUser {
+  name: string;
+  email: string;
+  picture: string;
+}
 
 declare global {
   interface Window {
@@ -6,19 +13,20 @@ declare global {
   }
 }
 
-const GoogleSignInButton: React.FC = () => {
-  // Handle the callback when user signs in
+interface GoogleProps {
+  onSubmit: (name: string, email: string) => void;
+}
+
+const GoogleSignInButton: React.FC<GoogleProps> = ({ onSubmit }) => {
   const handleCredentialResponse = (response: any) => {
-    console.log("Encoded JWT ID token:", response.credential);
-    // You can decode it using jwt-decode to get user info
-    // const userInfo = jwt_decode(response.credential);
-    // console.log(userInfo);
+    const userInfo: GoogleUser = jwtDecode(response.credential);
+    onSubmit(userInfo.name, userInfo.email);
   };
 
   useEffect(() => {
     if (window.google) {
       window.google.accounts.id.initialize({
-        client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID as string, // 🔹 from your .env file
+        client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID as string,
         callback: handleCredentialResponse,
       });
 
@@ -34,7 +42,6 @@ const GoogleSignInButton: React.FC = () => {
       );
     }
   }, []);
-
   return <div id="googleSignInDiv"></div>;
 };
 

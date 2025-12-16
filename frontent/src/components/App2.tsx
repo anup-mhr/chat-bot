@@ -558,7 +558,7 @@ function App2() {
         }
       } else if (type === "quick_reply") {
         socket.emit(
-          `user:message`,
+          `message:sent`,
           {
             text: dataPart,
             payload: { title, payload },
@@ -612,10 +612,6 @@ function App2() {
       <FormDialog
         isOpen={showFormDialog}
         onSubmit={handleFormSubmit}
-        onClose={() => {
-          setShowFormDialog(false);
-          setIsFormForCall(false);
-        }}
         isForCall={isFormForCall}
         onCallRequest={() => setShowCallOverlay(true)}
         formSubmit={formSubmit}

@@ -19,6 +19,7 @@
     "clsx": "^2.1.1",
     "crypto-js": "^4.2.0",
     "jiti": "^2.6.1",
+    "jwt-decode": "^4.0.0",
     "less": "^4.4.2",
     "lightningcss": "^1.30.2",
     "lucide-react": "^0.556.0",

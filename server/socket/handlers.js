@@ -295,10 +295,6 @@ class Handlers {
       data,
       ["navigationHistory"]
     );
-    console.log(
-      "user join in user set data",
-      await client.hget(this._userRedisKey, this._user)
-    );
     await this.userBroadcast();
   }
 
@@ -350,22 +346,12 @@ class Handlers {
       this._socket.join("all");
       return callback(true);
     }
-    console.log(role, "user joind details from redis", user);
-    if (role === "User") {
-      createVisitor(userId, llmFields, source);
-    }
-
     // const data = await saveUserInDashboard(this._user, this._source, botUserData, llmFields);
-    let data = await client.hget(this._userRedisKey, this._user);
-
     let jsondata = {
-      name: data.name || "",
-      email: data.email || "",
-      mobile: data.mobile || "",
+      name: "",
+      email: "",
+      mobile: "",
     };
-
-    console.log(data, "consoling profile details when user join>>>", jsondata);
-
     if (source === "fb" || source === "instagram") {
       callback(true);
       jsondata = {
@@ -394,7 +380,12 @@ class Handlers {
             },
           }),
     });
-    await this.userSetData({ ...jsondata.clientDetails, ...jsondata });
+    if (role === "User") {
+      await this.userBroadcast();
+      createVisitor(userId, llmFields, source);
+    } else {
+      await this.userSetData({ ...jsondata.clientDetails, ...jsondata });
+    }
     await this.userSetSession(
       `joined::${category}::${user.engagedWith || "bot"}`
     );
@@ -1633,6 +1624,24 @@ class Handlers {
   }
 
   async messageSent(message, metadata, llmfields) {
+    if (message?.type === "customer_rating") {
+      this._io.to(this._user).emit("bot:typing");
+      const response = await postRate(
+        message.payload.payload,
+        message.payload.payload.split(":")[0].trim(),
+        this._user
+      );
+      response.success &&
+        this._io.to(this._user).emit("message:received", {
+          result:
+            "Thank you for your Feedback. Is there anything else I can help you with?",
+          sender: this._user,
+          "Language Required": "English",
+          "Tool Used?": false,
+        });
+      this._io.to(this._user).emit("botStop:typing");
+      return;
+    }
     let guided = message.guided || null;
     const sender = this._user;
     const source = this._source;
@@ -1686,7 +1695,14 @@ class Handlers {
     if (message.query_offline) {
       metadata.sender = sender;
       metadata.source = source;
-      return await this.callRasa(message, metadata, "", sender);
+      return await generateAIResponse(
+        message,
+        metadata,
+        sender,
+        source,
+        senderUserData,
+        attachment
+      );
     }
     message.type = message?.type || "userMessage";
     message = sanitizeMessage(message);
@@ -2100,68 +2116,11 @@ class Handlers {
     }
   }
 
-  async callRasa(payload, metadata, text, sender, responseMessage) {
-    let source = this._source;
-    let isActive = await this.checkIsAgentActiveOrNot();
-    const rasaResponse = await RasaAPI.getIntentRequest(
-      payload,
-      metadata,
-      isActive,
-      responseMessage
-    );
-    if (!rasaResponse) {
-      return;
-    }
-    const data = Array.isArray(rasaResponse) ? rasaResponse : [rasaResponse];
-    const visitorData = data.find(
-      (messageData) =>
-        messageData?.visitorData?.name ||
-        messageData?.visitorData?.mobile_number ||
-        messageData?.visitorData?.email
-    )?.visitorData;
-    if (visitorData) {
-      this.userSetData({ ...visitorData });
-    }
-
-    await this.sendMessagesAtInterval(data, sender);
-
-    //let excludeQuery = ["/menu", "/dummy_welcome", "Menu", "End Livechat", "Get Started", "/menu", "menu", "lead"];
-    //if (!excludeQuery.includes(text)) {
-    //  postQuery(
-    //     text,
-    //    payload,
-    //    source,
-    //    data?.some((resData) => resData.isform),
-    //    data,
-    //    sender
-    //  );
-    //}
-  }
-
   async userMessage(message, userDetails, details, sender, source, attachment) {
     // const session = activeSessions.get(socket.id);
     // if (session) {
     //   session.messageCount++;
     // }
-
-    this._io.to(sender).emit("bot:typing");
-    if (message?.type === "customer_rating") {
-      const response = await postRate(
-        message.payload.payload,
-        message.payload.payload.split(":")[0].trim(),
-        sender
-      );
-      response.success &&
-        this._io.to(sender).emit("message:received", {
-          result:
-            "Thank you for your Feedback. Is there anything else I can help you with?",
-          sender: sender,
-          "Language Required": "English",
-          "Tool Used?": false,
-        });
-      this._io.to(sender).emit("botStop:typing");
-      return;
-    }
 
     const senderUser = await client.hget(this._userRedisKey, sender);
     const receipent = senderUser?.engagedWith || "server";
@@ -2202,6 +2161,7 @@ class Handlers {
     );
 
     try {
+      this._io.to(sender).emit("bot:typing");
       const aiResponse = await generateAIResponse(
         message,
         details,

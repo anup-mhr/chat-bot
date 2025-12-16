@@ -8,7 +8,6 @@ import GoogleSignInButton from "./GoogleSignInButton";
 interface FormDialogProps {
   isOpen: boolean;
   onSubmit: (name: string, email: string) => void;
-  onClose?: () => void;
   isForCall?: boolean;
   onCallRequest?: () => void;
   formSubmit?: boolean;
@@ -17,7 +16,6 @@ interface FormDialogProps {
 export function FormDialog({
   isOpen,
   onSubmit,
-  onClose,
   isForCall = false,
   onCallRequest,
   formSubmit,
@@ -190,7 +188,7 @@ export function FormDialog({
 
             {/* Google Sign In */}
             <div className="form-google-btn">
-              <GoogleSignInButton />
+              <GoogleSignInButton onSubmit={onSubmit} />
             </div>
           </div>
         </div>
