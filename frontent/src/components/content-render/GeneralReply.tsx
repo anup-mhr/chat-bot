@@ -44,7 +44,7 @@ const GeneralReply = ({ data }: QuickReplyProps) => {
           <img
             src={data.audioUrl}
             alt="/image"
-            className="w-full min-w-[200px] max-w-[250px] p-4 rounded-md"
+            className="w-full min-w-[200px] max-w-[250px] rounded-md"
           />
         </div>
       ) : data.type === "file" && data.audioUrl ? (
