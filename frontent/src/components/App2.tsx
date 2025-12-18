@@ -1,55 +1,21 @@
-import { ImagePlus, Mic, SendHorizontal, X, Check } from "lucide-react";
-import type React from "react";
 import { useEffect, useRef, useState } from "react";
 import type { Socket } from "socket.io-client";
 import { CallOverlay } from "./CallOverlay";
 import { FormDialog } from "./FormDialog";
 import { useVisitor } from "../context/org.context";
-import { connectSocket, disconnectSocket, getSocket } from "../socket/socket";
+import { getSocket } from "../socket/socket";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import Messages from "./Messages";
 import FormPopup from "./FormPopup";
-
-interface Message {
-  id: string;
-  botName: string | null;
-  content: string;
-  sender: "user" | "bot" | "agentMessage";
-  timestamp: Date;
-  type?: "text" | "audio" | "image" | "file" | "video" | "quick_reply";
-  audioUrl?: string;
-  buttons?: {
-    title: string;
-    payload: string;
-  }[];
-}
-
-interface UserDetails {
-  name: string;
-  phone: string;
-  email: string;
-  subject: string;
-}
-
-type Attachment = {
-  payload: {
-    mediaId: string;
-    path: string;
-  } | null;
-  type: string;
-} | null;
-
-interface TransferRequest {
-  text: string;
-  id: string;
-  type: string;
-  ping?: boolean;
-  notification?: boolean;
-  buttons?: {
-    title: string;
-    payload: string;
-  }[];
-}
+import ChatInput from "./ChatInput";
+import { useAudioRecorder } from "../hooks/useAudioRecorder";
+import { useMessageHandler } from "../hooks/useMessageHandler";
+import { useSocketConnection } from "../hooks/useSocketConnection";
+import type {
+  Message,
+  UserDetails,
+  TransferRequest,
+} from "../types/chat.types";
 
 function App2() {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -60,9 +26,6 @@ function App2() {
     email: "",
     subject: "",
   });
-  const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(
-    null
-  );
   const [livechatTransferRequest, setlivechatTransferRequest] =
     useState<TransferRequest | null>(null);
   const [pendingMessage, setPendingMessage] = useState<{
@@ -72,8 +35,6 @@ function App2() {
   } | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
-  const [isRecording, setIsRecording] = useState(false);
-  const [visualizeData, setVisualizeData] = useState<any>([]);
   const [showCallOverlay, setShowCallOverlay] = useState(false);
   const [showFormDialog, setShowFormDialog] = useState(false);
   const [firstMessage, setFirstMessage] = useState(true);
@@ -88,141 +49,81 @@ function App2() {
   const livechatRef = useRef(livechat);
   const socketRef = useRef<Socket | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-
   const livechatAgentName = useRef("");
 
   const { visitorData } = useVisitor();
-  const socket = getSocket();
   const env = import.meta.env;
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  const sendAttachment = (audioBlob: Blob | null, imagefile: File | null) => {
+    if (firstMessage) {
+      const audioUrl = URL.createObjectURL(audioBlob ? audioBlob : imagefile!);
+      setPendingMessage({
+        content: imagefile ? imagefile.name : "Voice message",
+        type: imagefile?.type ? imagefile.type : "audio",
+        audioUrl,
+      });
+      setShowFormDialog(true);
+      return;
+    }
+
+    const socket = getSocket();
+    if (!socket) return;
+    socket.emit(
+      "voice:message",
+      audioBlob ? audioBlob : imagefile,
+      visitorData.visitorId,
+      imagefile?.name ? imagefile.name : `audiomessage_${Date.now()}.mp3`,
+      imagefile?.type ? imagefile.type : "audio"
+    );
   };
 
+  // Custom hooks for better separation of concerns
+  const {
+    isRecording,
+    visualizeData,
+    startRecording,
+    stopRecording,
+    cancelRecording,
+  } = useAudioRecorder(sendAttachment);
+
+  const { renderMessage, messageSend } = useMessageHandler(
+    setMessages,
+    setshiftKey,
+    showModules,
+    setShowModules,
+    livechatRef,
+    livechatAgentName,
+    visitorData,
+    userDetails
+  );
+
+  useSocketConnection({
+    visitorData,
+    setIsConnected,
+    setIsTyping,
+    setshiftKey,
+    setlivechatTransferRequest,
+    setShowLivechatRequest,
+    setShowModules,
+    setLivechat,
+    renderMessage,
+    messageSend,
+    livechatAgentName,
+    socketRef,
+  });
+
+  // Scroll to bottom effect
   useEffect(() => {
-    scrollToBottom();
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  useEffect(() => {
-    const socket = connectSocket(
-      () => {
-        setIsConnected(true);
-
-        socket.emit(
-          "user:join",
-          visitorData.visitorId,
-          "all",
-          "User",
-          "web",
-          null,
-          visitorData.details,
-          visitorData.userDetails,
-          async (value: any, userData: any) => {
-            if (!value) {
-              return null;
-            }
-            if (value && value.hasOwnProperty("engagedWith")) {
-              setLivechat(true);
-            }
-          }
-        );
-      },
-      () => {
-        console.log("socket disconnected>>");
-        setIsConnected(false);
-      },
-      (error) => {
-        console.error("Connection error:", error);
-        setIsConnected(false);
-      },
-      (data) => {
-        setIsTyping(false);
-        console.log(data, "Bot Message received>>>");
-        setshiftKey(false);
-        if (data.type === "livechatIncomingRequest") {
-          setlivechatTransferRequest(data);
-          setShowLivechatRequest(true);
-        }
-        if (data.type === "quick_reply") {
-          renderMessage(
-            data?.title ? data.title : "Something went wrong",
-            null,
-            "bot",
-            data?.type ? data.type : "text",
-            data?.data ? data.data : []
-          );
-          setShowModules(true);
-        } else {
-          renderMessage(
-            data?.custom
-              ? data?.custom?.text
-              : data?.text
-              ? data?.text
-              : data?.result
-              ? data?.result
-              : data?.message
-              ? data?.message
-              : "Something went wrong",
-            data?.custom?.path
-              ? data.custom.path
-              : data?.attachment?.payload
-              ? data.attachment.payload
-              : null,
-            data?.type === "agentMessage" ? "agentMessage" : "bot",
-            data.custom?.type === "audio"
-              ? "audio"
-              : data?.attachment?.type
-              ? data?.attachment?.type
-              : data?.type
-              ? data.type
-              : "text"
-          );
-        }
-      },
-      () => setIsTyping(true),
-      () => setIsTyping(false),
-      (voiceResponse) => {
-        console.log(voiceResponse, "consoling voice Response>>");
-        const match = voiceResponse.path.match(
-          /\/uploads\/(live_chat_[^/]+)\//i
-        );
-        const type = match
-          ? match[1] === "live_chat_audio"
-            ? "audio"
-            : match[1] === "live_chat_image"
-            ? "image"
-            : match[1] === "live_chat_file"
-            ? "file"
-            : match[1] === "live_chat_video"
-            ? "video"
-            : ""
-          : null;
-        renderMessage(null, voiceResponse.path, "user", type);
-        messageSend(null, {
-          payload: { ...voiceResponse },
-          type: type as string,
-        });
-      },
-      (data) => {
-        setLivechat(true);
-        livechatAgentName.current = data;
-      },
-      () => setLivechat(false)
-    );
-
-    socketRef.current = socket;
-
-    return () => {
-      disconnectSocket();
-    };
-  }, [visitorData]);
-
+  // Sync livechat ref
   useEffect(() => {
     livechatRef.current = livechat;
   }, [livechat]);
 
+  // Sync visitor data to user details
   useEffect(() => {
-    console.log(visitorData, "Visitor Details from context");
     if (visitorData?.userDetails?.name && visitorData?.userDetails?.email) {
       setUserDetails((prev) => ({
         ...prev,
@@ -233,18 +134,14 @@ function App2() {
     }
   }, [visitorData]);
 
+  // Update firstMessage flag
   useEffect(() => {
     if (userDetails.name && userDetails.email) {
       setFirstMessage(false);
     }
   }, [userDetails]);
 
-  useEffect(() => {
-    return () => {
-      if (socketRef.current) socketRef.current.disconnect();
-    };
-  }, []);
-
+  // Handle call overlay trigger
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
       if (event.data.type === "start-call") {
@@ -257,14 +154,8 @@ function App2() {
             ping: true,
             notification: false,
             buttons: [
-              {
-                title: "Yes",
-                payload: `livechat:end:menu`,
-              },
-              {
-                title: "No",
-                payload: `livechat:transferReject:No`,
-              },
+              { title: "Yes", payload: `livechat:end:menu` },
+              { title: "No", payload: `livechat:transferReject:No` },
             ],
           });
           setShowLivechatRequest(true);
@@ -281,7 +172,7 @@ function App2() {
 
     window.addEventListener("message", handleMessage);
     return () => window.removeEventListener("message", handleMessage);
-  }, [firstMessage, livechat]);
+  }, [firstMessage, livechat, visitorData.details]);
 
   const userMessage = (e: React.FormEvent) => {
     e.preventDefault();
@@ -294,7 +185,6 @@ function App2() {
 
     if (!inputValue.trim()) return;
 
-    // If form not filled, show form and store pending message
     if (firstMessage) {
       setPendingMessage({ content: inputValue, type: "text" });
       setShowFormDialog(true);
@@ -306,209 +196,6 @@ function App2() {
     messageSend(inputValue, null);
     setInputValue("");
     !livechatRef.current && setIsTyping(true);
-  };
-
-  async function messageSend(message: string | null, attachment: Attachment) {
-    const socket = getSocket();
-    if (!socket) return;
-    console.log(
-      "Sending message:",
-      {
-        message,
-        attachment,
-      },
-      livechatRef.current
-    );
-    if (!livechatRef.current) {
-      setshiftKey(true);
-      if (message?.startsWith("livechat:request:")) {
-        socket.emit("livechat:request", message.split("livechat:request:")[1]);
-        return;
-      }
-      socket.emit(
-        "user:message",
-        message,
-        userDetails,
-        visitorData ? visitorData.details : null,
-        visitorData ? visitorData.visitorId : null,
-        "web",
-        attachment
-      );
-    } else {
-      socket.emit(
-        "message:sent",
-        {
-          ...(message && { text: message }),
-          ...(message && { payload: message }),
-          attachment,
-        },
-        null,
-        visitorData ? visitorData.details : null
-      );
-    }
-  }
-
-  async function renderMessage(
-    message: string | null,
-    audio: string | null,
-    sender: "user" | "bot" | "agentMessage",
-    type: any,
-    data: { title: string; payload: string }[] = []
-  ) {
-    console.log(livechatAgentName, "consoling agent name in render message");
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      botName: livechatRef.current
-        ? livechatAgentName.current || "Agent"
-        : visitorData.details?.name || null,
-      content: message ? message : type === "audio" ? "Voice message" : "",
-      sender: sender,
-      timestamp: new Date(),
-      type: type,
-      ...(audio ? { audioUrl: audio as string } : {}),
-      ...(data.length > 0 ? { buttons: data } : {}),
-    };
-    setMessages((prev) => [...prev, userMessage]);
-    type !== "quick_reply" && showModules && setShowModules(false);
-  }
-
-  const startRecording = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const recorder = new MediaRecorder(stream);
-      const chunks: Blob[] = [];
-
-      // Create Web Audio API context for visualization
-      const audioCtx = new AudioContext();
-      const source = audioCtx.createMediaStreamSource(stream);
-      const analyser = audioCtx.createAnalyser();
-      analyser.fftSize = 128;
-
-      const bufferLength = analyser.frequencyBinCount;
-      const dataArray = new Uint8Array(bufferLength);
-
-      source.connect(analyser);
-
-      // Visualization function that continuously updates
-      let visualizationFrameId: number;
-      const draw = () => {
-        analyser.getByteTimeDomainData(dataArray);
-        setVisualizeData(Array.from(dataArray)); // Convert to array
-        visualizationFrameId = requestAnimationFrame(draw); // Keep updating
-      };
-
-      draw(); // Start the visualization loop
-
-      // Handle audio chunks
-      recorder.ondataavailable = (event) => {
-        if (event.data.size > 0) chunks.push(event.data);
-      };
-
-      recorder.onstop = () => {
-        const audioBlob = new Blob(chunks, { type: "audio/wav" });
-        sendAttachment(audioBlob, null);
-        audioCtx.close();
-
-        // Stop visualization loop
-        if (visualizationFrameId) {
-          cancelAnimationFrame(visualizationFrameId);
-        }
-
-        // Stop microphone stream
-        stream.getTracks().forEach((track) => track.stop());
-      };
-
-      recorder.start();
-      setMediaRecorder(recorder);
-      setIsRecording(true);
-    } catch (error: any) {
-      console.error(`Error accessing microphone: ${error}`);
-      if (
-        error.name === "NotAllowedError" ||
-        error.name === "PermissionDeniedError"
-      ) {
-        alert(
-          "Microphone access is blocked. Please enable it from your browser settings."
-        );
-      }
-    }
-  };
-
-  const stopRecording = () => {
-    if (mediaRecorder && mediaRecorder.state === "recording") {
-      mediaRecorder.stop();
-      setIsRecording(false);
-      setMediaRecorder(null);
-    }
-  };
-
-  const cancelRecording = () => {
-    if (mediaRecorder && mediaRecorder.state === "recording") {
-      const stream = mediaRecorder.stream;
-      mediaRecorder.ondataavailable = null;
-      mediaRecorder.onstop = null;
-      mediaRecorder.stop();
-
-      stream.getTracks().forEach((track) => track.stop());
-
-      setIsRecording(false);
-      setMediaRecorder(null);
-      setVisualizeData([]); // Clear visualization data
-    }
-  };
-
-  const handleMicClick = () => {
-    if (visitorData.details) {
-      if (firstMessage) {
-        setShowFormDialog(true);
-        return;
-      }
-      if (isRecording) {
-        stopRecording();
-      } else {
-        startRecording();
-      }
-    } else {
-      return;
-    }
-  };
-
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
-
-  const handleImageClick = () => {
-    if (!livechatRef.current) return;
-    if (fileInputRef.current) {
-      fileInputRef.current.click();
-    }
-  };
-
-  const handleFileChange = (event: any) => {
-    const file = event.target.files[0];
-    if (!file) return;
-    setSelectedFile(file);
-    event.target.value = ""; // Reset input
-  };
-
-  const sendAttachment = (audioBlob: Blob | null, imagefile: File | null) => {
-    if (firstMessage) {
-      const audioUrl = URL.createObjectURL(audioBlob ? audioBlob : imagefile!);
-      setPendingMessage({
-        content: imagefile ? imagefile.name : "Voice message",
-        type: imagefile?.type ? imagefile.type : "audio",
-        audioUrl,
-      });
-      setShowFormDialog(true);
-      return;
-    }
-
-    if (!socket) return;
-    socket.emit(
-      "voice:message",
-      audioBlob ? audioBlob : imagefile,
-      visitorData.visitorId,
-      imagefile?.name ? imagefile.name : `audiomessage_${Date.now()}.mp3`,
-      imagefile?.type ? imagefile.type : "audio"
-    );
   };
 
   const handleFormSubmit = async (name: string, email: string) => {
@@ -546,19 +233,16 @@ function App2() {
         setFormSubmit(false);
       }
 
-      // If form was for call, trigger call
       if (isFormForCall) {
         setIsFormForCall(false);
         setShowCallOverlay(true);
-      }
-      // Send pending message if exists
-      else if (pendingMessage) {
+      } else if (pendingMessage) {
         if (pendingMessage.type === "text") {
           renderMessage(pendingMessage.content, null, "user", "text");
           messageSend(pendingMessage.content, null);
         } else if (pendingMessage.type === "audio" && pendingMessage.audioUrl) {
           renderMessage(null, pendingMessage.audioUrl, "user", "audio");
-          // For voice, emit the event directly
+          const socket = getSocket();
           if (socket) {
             socket.emit("voice-message", {
               audio: pendingMessage.audioUrl,
@@ -579,13 +263,12 @@ function App2() {
   };
 
   const handleButtonClick = (type: string, title: string, payload: string) => {
+    const socket = getSocket();
     if (!socket) return;
 
-    // setLivechat(true);
     setShowLivechatRequest(false);
     if (!(type === "livechatEndRequest" && title === "No"))
       renderMessage(title, null, "user", "text");
-    // messageSend(inputValue, null);
 
     try {
       const [namespace, action, ...rest] = payload.split(":");
@@ -628,9 +311,7 @@ function App2() {
   };
 
   return (
-    // Chat Window
     <div className={`chat-window ${true ? "open" : ""}`}>
-      {/* Header */}
       <div className="chat-header">
         <div className="header-content">
           <div className="bot-info">
@@ -652,7 +333,6 @@ function App2() {
         </div>
       </div>
 
-      {/* Messages */}
       <Messages
         messages={messages}
         isTyping={isTyping}
@@ -684,102 +364,22 @@ function App2() {
         handleButtonClick={handleButtonClick}
       />
 
-      {/* Input */}
-      <form className="chat-input-form" onSubmit={userMessage}>
-        {isRecording ? (
-          <div className="recording-bar-container">
-            <button
-              type="button"
-              className="recording-cancel-btn"
-              onClick={cancelRecording}
-              aria-label="Cancel recording"
-            >
-              <X size={18} />
-            </button>
-            <div className="w-[260px] h-8 bg-dim rounded-full flex items-center overflow-clip gap-1 p-1">
-              {Array.from(visualizeData).map((data: any, index) => (
-                <div
-                  className="w-1 bg-dim-dark rounded-full flex shrink-0 bg-(--secondary-color)"
-                  style={{
-                    height: `${Math.max(5, Math.abs((128 - data) * 5))}%`,
-                  }}
-                  key={index}
-                />
-              ))}
-            </div>
-            <button
-              type="button"
-              className="recording-send-btn"
-              onClick={stopRecording}
-              aria-label="Send recording"
-            >
-              <Check size={18} />
-            </button>
-          </div>
-        ) : (
-          <div className="input-container">
-            <Mic
-              className={`cursor-pointer ${
-                !visitorData.details
-                  ? "text-gray-400 cursor-not-allowed opacity-50"
-                  : "text-(--secondary-color)"
-              }`}
-              onClick={handleMicClick}
-              size={20}
-            />
-            {selectedFile ? (
-              <X
-                className="text-(--secondary-color) cursor-pointer"
-                onClick={() => setSelectedFile(null)}
-                size={20}
-              />
-            ) : (
-              <ImagePlus
-                className={`${
-                  !livechat
-                    ? "text-gray-400 cursor-not-allowed opacity-50"
-                    : "text-(--secondary-color) cursor-pointer"
-                }`}
-                onClick={handleImageClick}
-                size={20}
-              />
-            )}
-
-            {/* Hidden file input */}
-            <input
-              type="file"
-              ref={fileInputRef}
-              style={{ display: "none" }}
-              onChange={handleFileChange}
-              accept="image/*,video/*,.pdf,.doc,.docx"
-            />
-
-            <input
-              type="text"
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              placeholder={
-                selectedFile ? selectedFile.name : "Type your message..."
-              }
-              className="chat-input"
-              disabled={!isConnected || !!selectedFile}
-            />
-
-            <button
-              type="submit"
-              className="send-button"
-              disabled={
-                (!inputValue.trim() && !selectedFile) ||
-                !isConnected ||
-                shiftKey
-              }
-              aria-label="Send message"
-            >
-              <SendHorizontal size={16} />
-            </button>
-          </div>
-        )}
-      </form>
+      <ChatInput
+        isRecording={isRecording}
+        visualizeData={visualizeData}
+        inputValue={inputValue}
+        selectedFile={selectedFile}
+        isConnected={isConnected}
+        shiftKey={shiftKey}
+        livechat={livechat}
+        visitorDetails={visitorData.details}
+        onInputChange={setInputValue}
+        onSubmit={userMessage}
+        onFileSelect={setSelectedFile}
+        onStartRecording={startRecording}
+        onStopRecording={stopRecording}
+        onCancelRecording={cancelRecording}
+      />
     </div>
   );
 }

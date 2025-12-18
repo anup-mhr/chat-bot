@@ -150,7 +150,6 @@ async function generateAIResponse(
     "file-type": "txt",
     apiKey: process.env.OPENAI_KEY,
   };
-
   const response = await ServerServices.postToServer(openAi, body, headers);
   let responseData = await response.json();
 
