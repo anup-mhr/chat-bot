@@ -85,6 +85,11 @@ export const useAudioRecorder = (
       setIsRecording(false);
       setMediaRecorder(null);
       setVisualizeData([]);
+
+      if (visualizationFrameIdRef.current) {
+        cancelAnimationFrame(visualizationFrameIdRef.current);
+        visualizationFrameIdRef.current = null;
+      }
     }
   }, [mediaRecorder]);
 

@@ -3,7 +3,7 @@ require("dotenv").config();
 
 exports.embedScripted = catchAsync(async function (req, res) {
   // const baseUrl = process.env.BASE_URL ?? "http://localhost:5173";
-  const baseUrl = "http://localhost:3001/chatbot";
+  const baseUrl = "http://localhost:5173";
 
   const script = `
 (async () => {

@@ -60,7 +60,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
           >
             <X size={18} />
           </button>
-          <div className="w-[260px] h-8 bg-dim rounded-full flex items-center overflow-clip gap-1 p-1">
+          <div className="visualized-data h-8 bg-dim rounded-full flex items-center overflow-clip gap-1 p-1">
             {Array.from(visualizeData).map((data: any, index) => (
               <div
                 className="w-1 bg-dim-dark rounded-full flex shrink-0 bg-(--secondary-color)"

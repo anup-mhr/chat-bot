@@ -1083,6 +1083,10 @@ body {
   transform: scale(0.95);
 }
 
+.visualized-data {
+  width: 70vw;
+}
+
 /* Mobile Responsive for Recording Bar */
 @media (max-width: 768px) {
   .recording-bar-container {
@@ -1098,5 +1102,17 @@ body {
 
   .recording-time {
     font-size: 10px;
+  }
+}
+
+@media (max-width: 375px) {
+  .visualized-data {
+    width: 68vw;
+  }
+}
+
+@media (max-width: 320px) {
+  .visualized-data {
+    width: 60vw;
   }
 }
