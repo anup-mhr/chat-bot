@@ -1,0 +1,27 @@
+version: "3.9"
+
+services:
+  chatbot-server:
+    build: .
+    container_name: chatbot_server
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    depends_on:
+      - redis
+    command: ["node", "server.js"]
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+
+volumes:
+  redis-data:
